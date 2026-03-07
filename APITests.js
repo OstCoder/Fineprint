@@ -1,6 +1,8 @@
 const COMPANY = "Meta Platforms";
 const COURT_TOKEN = "f1ab345757ffa6dba3dad50f1618009d15764697";
 const NEWS_KEY = "e6c49421ccef48f9b3439c9e9ff0b6c8";
+const GROQ_KEY = window.FINEPRINT_CONFIG.GROQ_KEY;
+const GROQ_MODEL = window.FINEPRINT_CONFIG.GROQ_MODEL;
 
 async function testCourtListener() {
   console.log("\n⚖️  TEST 1: CourtListener\n");

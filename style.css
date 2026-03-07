@@ -434,7 +434,7 @@ body {
 }
 
 .lawsuit-card {
-  background: rgba(255, 255, 255, 0.03);
+  background: #F1EDEC;
   border: 1px solid var(--deeper);
   border-radius: 6px;
   padding: 10px;
