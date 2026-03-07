@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fineprint — Read Between the Lines</title>
+  <link rel="icon" type="image/svg+xml" href="images/fineprint-favicon.svg">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <header id="topbar">
+      <div class="logo">fine<span>print</span></div>
+      <div class="tagline">Read between the lines</div>
+      <div class="topbar-right">
+        <span id="user-email"></span>
+        <button class="btn-sm" id="logout-btn">Sign Out</button>
+      </div>
+    </header>
+
+    <aside id="left-panel">
+      <div class="panel-title">Upload Document</div>
+
+      <div id="drop-zone">
+        <div class="drop-icon">📄</div>
+        <p><strong>Drop a file here</strong><br>or click to browse<br><span class="hint-sm">PDF · TXT</span></p>
+        <input type="file" id="file-input" accept=".pdf,.txt">
+      </div>
+
+      <div class="or-div">or paste text</div>
+
+      <textarea id="paste-area" placeholder="Paste Terms & Conditions or Privacy Policy text here..."></textarea>
+
+      <button id="analyze-btn">Analyze</button>
+      <div id="status"></div>
+
+      <div id="red-flags-section">
+        <div class="panel-title">⚠ Red Flags</div>
+        <ul id="red-flags-list"></ul>
+      </div>
+
+      <button id="save-btn">💾 Save Graph</button>
+
+      <div id="saved-section">
+        <div class="panel-title">Saved Analyses</div>
+        <div id="saved-list"></div>
+      </div>
+    </aside>
+
+    <main id="graph-panel">
+      <svg id="graph-canvas"></svg>
+      <div id="empty-state">
+        <div class="ei">🔍</div>
+        <p>Upload a document to begin</p>
+      </div>
+      <div id="legend">
+        <div class="li"><div class="ld" style="background:#e8d5a3"></div>Company</div>
+        <div class="li"><div class="ld" style="background:#ff6b6b"></div>Data Broker</div>
+        <div class="li"><div class="ld" style="background:#ffa94d"></div>Ad Network</div>
+        <div class="li"><div class="ld" style="background:#74c0fc"></div>Jurisdiction</div>
+        <div class="li"><div class="ld" style="background:#b197fc"></div>Legal Clause</div>
+      </div>
+    </main>
+
+    <aside id="right-panel">
+      <div class="panel-title">⚖ Legal Activity</div>
+      <div id="lawsuit-list">
+        <div id="lawsuit-empty">Awaiting analysis...</div>
+      </div>
+    </aside>
+  </div>
+
+  <div id="tooltip">
+    <div class="tt-label"></div>
+    <div class="tt-type"></div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="supabase.js"></script>
+  <script src="index.js"></script>
+</body>
+</html>

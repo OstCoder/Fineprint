@@ -1,85 +1,139 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fineprint — Read Between the Lines</title>
-  <link rel="icon" type="image/svg+xml" href="images/fineprint-favicon.svg">
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fineprint — Welcome</title>
+<link rel="icon" type="image/svg+xml" href="images/fineprint-favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Courier Prime', monospace;
+  background: linear-gradient(180deg, #1a0f0a 0%, #3d1f12 100%);
+  color: #F4E3B0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.logo-wrap { margin-top: 60px; }
+.logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 52px;
+  font-weight: 900;
+  color: #F4E3B0;
+  letter-spacing: -2px;
+  line-height: 1;
+}
+.logo em { font-style: italic; color: #764C34; }
+.tagline {
+  font-size: 10px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: #B9B9B7;
+  margin-top: 10px;
+  opacity: 0.6;
+}
+
+.intro {
+  margin-top: 48px;
+  max-width: 560px;
+  padding: 0 24px;
+  opacity: 0;
+  animation: fadeIn 1.2s ease forwards;
+  animation-delay: 0.4s;
+}
+.intro h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(26px, 5vw, 40px);
+  font-weight: 700;
+  line-height: 1.25;
+  color: #F4E3B0;
+  margin-bottom: 14px;
+}
+.intro h1 em { font-style: italic; color: #764C34; }
+.intro p {
+  font-size: 14px;
+  color: #B9B9B7;
+  line-height: 1.8;
+  letter-spacing: 0.3px;
+}
+
+.demo {
+  margin-top: 40px;
+  padding: 24px;
+  border: 1px solid rgba(244,227,176,0.15);
+  border-radius: 12px;
+  width: 88%;
+  max-width: 680px;
+  opacity: 0;
+  animation: fadeIn 1.2s ease forwards;
+  animation-delay: 0.9s;
+  background: rgba(57,35,20,0.4);
+}
+.demo h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #F4E3B0;
+  margin-bottom: 10px;
+  letter-spacing: -0.5px;
+}
+.demo p {
+  font-size: 12px;
+  color: #B9B9B7;
+  line-height: 1.7;
+  margin-bottom: 16px;
+}
+
+.start-btn {
+  margin-top: 36px;
+  margin-bottom: 60px;
+  padding: 16px 48px;
+  background: #764C34;
+  border: none;
+  color: #F4E3B0;
+  font-size: 18px;
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  letter-spacing: 1px;
+  border-radius: 6px;
+  cursor: pointer;
+  opacity: 0;
+  animation: fadeIn 1.2s ease forwards;
+  animation-delay: 1.4s;
+  transition: background 0.2s, transform 0.15s;
+  box-shadow: 0 8px 24px rgba(118,76,52,0.4);
+}
+.start-btn:hover { background: #8a5a3e; transform: translateY(-2px); }
+
+@keyframes fadeIn { to { opacity: 1; } }
+</style>
 </head>
 <body>
-  <div id="app">
-    <header id="topbar">
-      <div class="logo">fine<span>print</span></div>
-      <div class="tagline">Read between the lines</div>
-      <div class="topbar-right">
-        <span id="user-email"></span>
-        <button class="btn-sm" id="logout-btn">Sign Out</button>
-      </div>
-    </header>
 
-    <aside id="left-panel">
-      <div class="panel-title">Upload Document</div>
+<div class="logo-wrap">
+  <div class="logo">fine<em>print</em></div>
+  <div class="tagline">Read between the lines</div>
+</div>
 
-      <div id="drop-zone">
-        <div class="drop-icon">📄</div>
-        <p><strong>Drop a file here</strong><br>or click to browse<br><span class="hint-sm">PDF · TXT</span></p>
-        <input type="file" id="file-input" accept=".pdf,.txt">
-      </div>
+<div class="intro">
+  <h1>Understand what you<br><em>actually</em> agreed to.</h1>
+  <p>Fineprint analyzes Terms of Service and Privacy Policies to reveal hidden legal risks, data brokers, and clauses — mapped visually so you can see the full picture.</p>
+</div>
 
-      <div class="or-div">or paste text</div>
+<div class="demo">
+  <h2>How it works</h2>
+  <p>Upload a document or paste any Terms &amp; Conditions → Fineprint maps every company, data broker, and legal clause into an interactive graph, then surfaces real court cases involving that company.</p>
 
-      <textarea id="paste-area" placeholder="Paste Terms & Conditions or Privacy Policy text here..."></textarea>
+</div>
 
-      <button id="analyze-btn">Analyze</button>
-      <div id="status"></div>
+<button class="start-btn" onclick="window.location.href='login.html'">Get Started →</button>
 
-      <div id="red-flags-section">
-        <div class="panel-title">⚠ Red Flags</div>
-        <ul id="red-flags-list"></ul>
-      </div>
-
-      <button id="save-btn">💾 Save Graph</button>
-
-      <div id="saved-section">
-        <div class="panel-title">Saved Analyses</div>
-        <div id="saved-list"></div>
-      </div>
-    </aside>
-
-    <main id="graph-panel">
-      <svg id="graph-canvas"></svg>
-      <div id="empty-state">
-        <div class="ei">🔍</div>
-        <p>Upload a document to begin</p>
-      </div>
-      <div id="legend">
-        <div class="li"><div class="ld" style="background:#e8d5a3"></div>Company</div>
-        <div class="li"><div class="ld" style="background:#ff6b6b"></div>Data Broker</div>
-        <div class="li"><div class="ld" style="background:#ffa94d"></div>Ad Network</div>
-        <div class="li"><div class="ld" style="background:#74c0fc"></div>Jurisdiction</div>
-        <div class="li"><div class="ld" style="background:#b197fc"></div>Legal Clause</div>
-      </div>
-    </main>
-
-    <aside id="right-panel">
-      <div class="panel-title">⚖ Legal Activity</div>
-      <div id="lawsuit-list">
-        <div id="lawsuit-empty">Awaiting analysis...</div>
-      </div>
-    </aside>
-  </div>
-
-  <div id="tooltip">
-    <div class="tt-label"></div>
-    <div class="tt-type"></div>
-  </div>
-
-  <script src="config.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-  <script src="supabase.js"></script>
-  <script src="index.js"></script>
 </body>
 </html>

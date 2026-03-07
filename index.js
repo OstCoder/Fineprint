@@ -1,12 +1,11 @@
-// ── script.js — Fineprint Main Logic ──
 
-const APP_CONFIG = window.FINEPRINT_CONFIG || {};
-const GROQ_KEY = APP_CONFIG.GROQ_KEY || "";
-const COURT_TOKEN = APP_CONFIG.COURTLISTENER_TOKEN || "";
-const NEWS_KEY = APP_CONFIG.NEWS_API_KEY || "";
+const GROQ_KEY = "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";
+const COURT_TOKEN = "f1ab345757ffa6dba3dad50f1618009d15764697";
+const NEWS_KEY = "e6c49421ccef48f9b3439c9e9ff0b6c8";
+const GROQ_MODEL = "llama-3.3-70b-versatile";
 
-const GROQ_SYSTEM = `You are a legal analysis tool. Extract all relationships from Terms & Conditions or Privacy Policy text.
-Return ONLY valid JSON with no explanation, no markdown, no backticks.
+const GROQ_SYSTEM = `You are a legal analysis tool helping everyday people understand Terms & Conditions and Privacy Policies.
+Extract all relationships and identify red flags. Return ONLY valid JSON with no explanation, no markdown, no backticks.
 
 Format:
 {
@@ -17,7 +16,13 @@ Format:
   "edges": [
     { "source": "id1", "target": "id2", "label": "relationship description" }
   ],
-  "red_flags": ["list of concerning clauses in plain English"]
+  "red_flags": [
+    {
+      "title": "Short plain-English name for the issue (e.g. 'No jury trial allowed')",
+      "what": "One sentence explaining what this clause actually does in plain English.",
+      "impact": "One sentence explaining how this directly affects the user."
+    }
+  ]
 }
 
 Node types:
@@ -25,7 +30,9 @@ Node types:
 - data_broker: third party that buys/receives data
 - ad_network: advertising partners
 - jurisdiction: legal jurisdiction or governing law
-- clause: important legal clause (arbitration, auto-renew, class action waiver, etc.)`;
+- clause: important legal clause (arbitration, auto-renew, class action waiver, etc.)
+
+For red_flags, focus on things that genuinely harm the user: forced arbitration, class action waivers, data selling, auto-renewal traps, unilateral term changes, broad liability waivers, data sharing with governments, etc. Write as if explaining to a non-lawyer friend.`;
 
 const NODE_COLORS = {
   company:     "#e8d5a3",
@@ -136,7 +143,7 @@ async function analyze() {
     return;
   }
 
-  setStatus('<span class="spinner"></span> Analyzing with Groq...', '');
+  setStatus('<span class="spinner"></span> Analyzing...', '');
   setAnalyzeDisabled(true);
   clearGraph();
   clearLawsuits();
@@ -177,22 +184,35 @@ async function callGroq(text) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      model: "llama3-70b-8192",
+      model: GROQ_MODEL,
       messages: [
         { role: "system", content: GROQ_SYSTEM },
-        { role: "user", content: `Extract all relationships from this T&C text:\n\n${text}` }
+        { role: "user",   content: `Extract all relationships from this T&C text:\n\n${text}` }
       ],
       temperature: 0.1,
       max_tokens: 2000
     })
   });
 
-  if (!res.ok) throw new Error(`Groq API error: ${res.status}`);
+  if (!res.ok) {
+    // ✅ Better error: surface the actual Groq error message
+    let detail = '';
+    try {
+      const errBody = await res.json();
+      detail = errBody?.error?.message || JSON.stringify(errBody);
+    } catch (_) {
+      detail = `HTTP ${res.status}`;
+    }
+    throw new Error(`Groq API error: ${detail}`);
+  }
 
   const data = await res.json();
   const raw = data.choices[0].message.content;
-  const clean = raw.replace(/```json|```/g, "").trim();
-  return JSON.parse(clean);
+
+  // ✅ Robust JSON extraction: strip any accidental markdown fences
+  const jsonMatch = raw.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) throw new Error("No JSON found in Groq response");
+  return JSON.parse(jsonMatch[0]);
 }
 
 // ── D3 Graph ──
@@ -249,7 +269,10 @@ function renderGraph(parsed) {
     .data(nodes)
     .enter().append("g")
     .attr("class", d => {
-      const isRedFlag = red_flags.some(f => f.toLowerCase().includes(d.label.toLowerCase()));
+      const isRedFlag = red_flags.some(f => {
+        const text = typeof f === 'string' ? f : `${f.title || ''} ${f.what || ''}`;
+        return text.toLowerCase().includes(d.label.toLowerCase());
+      });
       return isRedFlag ? "node-redflag" : "";
     })
     .call(d3.drag()
@@ -277,12 +300,12 @@ function renderGraph(parsed) {
     .attr("font-weight", d => d.type === 'company' ? "700" : "400")
     .text(d => d.label.length > 18 ? d.label.slice(0, 16) + '…' : d.label);
 
-  // Force simulation
+  // Force simulation — much more spread out
   simulation = d3.forceSimulation(nodes)
-    .force("link", d3.forceLink(edges).id(d => d.id).distance(100))
-    .force("charge", d3.forceManyBody().strength(-300))
+    .force("link", d3.forceLink(edges).id(d => d.id).distance(180))
+    .force("charge", d3.forceManyBody().strength(-800))
     .force("center", d3.forceCenter(width / 2, height / 2))
-    .force("collision", d3.forceCollide().radius(40))
+    .force("collision", d3.forceCollide().radius(70))
     .on("tick", () => {
       link
         .attr("x1", d => d.source.x)
@@ -339,7 +362,16 @@ function renderRedFlags(flags) {
 
   flags.forEach(f => {
     const li = document.createElement('li');
-    li.textContent = f;
+    // Support both old string format and new {title, what, impact} format
+    if (typeof f === 'string') {
+      li.innerHTML = `<span class="rf-title">${f}</span>`;
+    } else {
+      li.innerHTML = `
+        <span class="rf-title">${f.title || 'Issue Found'}</span>
+        ${f.what   ? `<span class="rf-what"><strong>What it means:</strong> ${f.what}</span>`   : ''}
+        ${f.impact ? `<span class="rf-impact"><strong>What it means for you:</strong> ${f.impact}</span>` : ''}
+      `;
+    }
     list.appendChild(li);
   });
 
@@ -373,14 +405,34 @@ async function fetchCourtListener(company) {
     });
     if (!res.ok) return [];
     const data = await res.json();
-    return (data.results || []).map(c => ({
-      type: 'court',
-      title: c.caseName || c.case_name || 'Unknown Case',
-      source: c.court || 'Federal Court',
-      date: c.dateFiled || c.date_filed || '',
-      url: c.absolute_url ? `https://www.courtlistener.com${c.absolute_url}` : '#'
-    }));
-  } catch { return []; }
+    return (data.results || []).map(c => {
+      // Build URL from docket_id first (most reliable for type=d search results)
+      // absolute_url in search results is a slug path like /docket/123/case-name/
+      // but docket_id alone gives us a guaranteed working URL
+      let caseUrl = null;
+      if (c.docket_id) {
+        // Slug name from caseName for a nicer URL, fallback to just the ID
+        const slug = (c.caseName || c.case_name || '')
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-|-$/g, '')
+          .slice(0, 60);
+        caseUrl = slug
+          ? `https://www.courtlistener.com/docket/${c.docket_id}/${slug}/`
+          : `https://www.courtlistener.com/docket/${c.docket_id}/`;
+      } else if (c.absolute_url) {
+        caseUrl = `https://www.courtlistener.com${c.absolute_url}`;
+      }
+
+      return {
+        type: 'court',
+        title: c.caseName || c.case_name || 'Unknown Case',
+        source: c.court_citation_string || c.court || 'Federal Court',
+        date: c.dateFiled || c.date_filed || '',
+        url: caseUrl
+      };
+    });
+  } catch (e) { console.error('CourtListener error:', e); return []; }
 }
 
 async function fetchNewsAPI(company) {
@@ -422,7 +474,6 @@ function renderLawsuits(results) {
     card.innerHTML = `
       <div class="lc-title">${r.title}</div>
       <div class="lc-meta">${r.source}${r.date ? ' · ' + r.date : ''} · ${r.type === 'court' ? '⚖️ Court' : '📰 News'}</div>
-      <a class="lc-link" href="${r.url}" target="_blank" rel="noopener noreferrer">View →</a>
     `;
     list.appendChild(card);
   });

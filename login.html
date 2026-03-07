@@ -169,7 +169,11 @@ input:focus { outline: none; border-color: #F4E3B0; }
 
   // Already logged in? Skip to app
   client.auth.getSession().then(({ data: { session } }) => {
-    if (session) window.location.href = "index.html";
+
+    if (session) {
+      console.log("already logged in, going to index.html")
+window.location.href = "index.html";
+    } 
   });
 
   function switchTab(tab) {
