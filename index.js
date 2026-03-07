@@ -1,8 +1,8 @@
+const GROQ_KEY = window.FINEPRINT_CONFIG.GROQ_KEY;
+const COURT_TOKEN = window.FINEPRINT_CONFIG.COURT_TOKEN;
+const NEWS_KEY = window.FINEPRINT_CONFIG.NEWS_KEY;
+const GROQ_MODEL = window.FINEPRINT_CONFIG.GROQ_MODEL;
 
-const GROQ_KEY = "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";
-const COURT_TOKEN = "f1ab345757ffa6dba3dad50f1618009d15764697";
-const NEWS_KEY = "e6c49421ccef48f9b3439c9e9ff0b6c8";
-const GROQ_MODEL = "llama-3.3-70b-versatile";
 
 const GROQ_SYSTEM = `You are a legal analysis tool helping everyday people understand Terms & Conditions and Privacy Policies.
 Extract all relationships and identify red flags. Return ONLY valid JSON with no explanation, no markdown, no backticks.
@@ -45,7 +45,6 @@ const NODE_COLORS = {
 let currentParsed = null;
 let simulation = null;
 
-// ── Auth Guard ──
 (async () => {
   if (!supabaseClient) {
     setStatus("Missing Supabase config. Set window.FINEPRINT_CONFIG in a local config file.", "error");
@@ -62,13 +61,11 @@ let simulation = null;
   loadSavedTrees();
 })();
 
-// ── Logout ──
 document.getElementById('logout-btn').addEventListener('click', async () => {
   await supabaseClient.auth.signOut();
   window.location.href = "login.html";
 });
 
-// ── File Upload ──
 const dropZone  = document.getElementById('drop-zone');
 const fileInput = document.getElementById('file-input');
 const pasteArea = document.getElementById('paste-area');
@@ -102,7 +99,7 @@ async function handleFile(file) {
     } else {
       text = await readTxt(file);
     }
-    pasteArea.value = text.slice(0, 8000); // cap at 8k chars for Groq
+    pasteArea.value = text.slice(0, 8000);
     setStatus(`✓ Loaded ${file.name}`, "success");
     dropZone.querySelector('p').innerHTML = `<strong>${file.name}</strong> ready to analyze`;
   } catch (err) {
@@ -133,7 +130,6 @@ async function readPdf(file) {
   return text;
 }
 
-// ── Analyze ──
 document.getElementById('analyze-btn').addEventListener('click', analyze);
 
 async function analyze() {
@@ -161,7 +157,6 @@ async function analyze() {
     document.getElementById('save-btn').style.display = 'block';
     setStatus(`✓ Found ${parsed.nodes.length} entities, ${parsed.edges.length} connections`, 'success');
 
-    // Fetch lawsuits in background
     if (parsed.company) {
       fetchLawsuits(parsed.company);
     }
@@ -195,7 +190,6 @@ async function callGroq(text) {
   });
 
   if (!res.ok) {
-    // ✅ Better error: surface the actual Groq error message
     let detail = '';
     try {
       const errBody = await res.json();
@@ -209,7 +203,6 @@ async function callGroq(text) {
   const data = await res.json();
   const raw = data.choices[0].message.content;
 
-  // ✅ Robust JSON extraction: strip any accidental markdown fences
   const jsonMatch = raw.match(/\{[\s\S]*\}/);
   if (!jsonMatch) throw new Error("No JSON found in Groq response");
   return JSON.parse(jsonMatch[0]);
