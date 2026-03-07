@@ -1,100 +1,229 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Page</title>
-    <style>
-        /* Center the container both vertically and horizontally */
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #000000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fineprint — Login</title>
+<link rel="icon" type="image/svg+xml" href="images/fineprint-favicon.svg">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Courier+Prime&display=swap');
 
-        /* Login container styling */
-        .login-container {
-            background-color: #764C34;
-            padding: 40px 30px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            width: 300px; /* controls the width of everything inside */
-            text-align: center;
-        }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-        /* Heading */
-        h2 {
-            margin-bottom: 25px;
-            font-size: 24px;
-        }
+body {
+  font-family: 'Courier Prime', monospace;
+  background: #25100C;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-image: radial-gradient(ellipse at 50% 50%, #392314 0%, #25100C 60%, #0a0806 100%);
+}
 
-        /* Input fields */
-        input[type="text"], input[type="password"] {
-            width: 100%; /* same width as container/button */
-            padding: 12px;
-            margin: 10px 0;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            font-size: 16px;
-            box-sizing: border-box; /* ensures padding doesn't break width */
-        }
+.card {
+  background: #392314;
+  border: 1px solid #764C34;
+  padding: 40px 36px;
+  border-radius: 12px;
+  width: 340px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+}
 
-        /* Login button */
-        button {
-            width: 100%; /* match the input fields */
-            padding: 12px;
-            margin-top: 15px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
+.logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 30px;
+  color: #F4E3B0;
+  text-align: center;
+  margin-bottom: 4px;
+  letter-spacing: -1px;
+}
 
-        button:hover {
-            background-color: #0056b3;
-        }
+.tagline {
+  text-align: center;
+  font-size: 11px;
+  color: #B9B9B7;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 28px;
+}
 
-        /* Error message styling */
-        .error {
-            color: red;
-            margin-top: 12px;
-            font-size: 14px;
-        }
-    </style>
+.tabs {
+  display: flex;
+  background: rgba(0,0,0,0.3);
+  border-radius: 6px;
+  padding: 3px;
+  margin-bottom: 22px;
+}
+
+.tab {
+  flex: 1;
+  padding: 9px;
+  border: none;
+  border-radius: 4px;
+  font-family: 'Courier Prime', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: transparent;
+  color: rgba(244,227,176,0.4);
+  letter-spacing: 1px;
+}
+
+.tab.active {
+  background: #764C34;
+  color: #F4E3B0;
+}
+
+input[type="email"],
+input[type="password"] {
+  width: 100%;
+  padding: 12px 14px;
+  margin: 6px 0;
+  border-radius: 6px;
+  border: 1px solid #764C34;
+  font-size: 14px;
+  font-family: 'Courier Prime', monospace;
+  background: rgba(0,0,0,0.4);
+  color: #F4E3B0;
+  transition: border 0.2s;
+}
+
+input::placeholder { color: #B9B9B7; opacity: 0.6; }
+input:focus { outline: none; border-color: #F4E3B0; }
+
+.submit-btn {
+  width: 100%;
+  padding: 13px;
+  margin-top: 14px;
+  background: #764C34;
+  color: #F4E3B0;
+  font-family: 'Playfair Display', serif;
+  font-size: 16px;
+  font-weight: 700;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: background 0.2s;
+}
+
+.submit-btn:hover { background: #8a5a3e; }
+.submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.message {
+  margin-top: 14px;
+  font-size: 12px;
+  border-radius: 4px;
+  padding: 8px 10px;
+  display: none;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+.message.error   { display: block; background: rgba(255,80,80,0.1); color: #ff6b6b; border: 1px solid rgba(255,80,80,0.2); }
+.message.success { display: block; background: rgba(107,255,184,0.1); color: #6bffb8; border: 1px solid rgba(107,255,184,0.2); }
+
+.form-panel.hidden { display: none; }
+</style>
 </head>
 <body>
-    <div class="login-container">
-        <h2>Login</h2>
-        <input type="text" id="username" placeholder="Username">
-        <input type="password" id="password" placeholder="Password">
-        <button onclick="login()">Login</button>
-        <div class="error" id="error"></div>
-    </div>
 
-    <script>
-        function login() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const errorDiv = document.getElementById('error');
+<div class="card">
+  <div class="logo">fineprint</div>
+  <div class="tagline">Read between the lines</div>
 
-            // Hardcoded credentials
-            const correctUsername = "user";
-            const correctPassword = "pass";
+  <div class="tabs">
+    <button class="tab active" id="loginTab" onclick="switchTab('login')">Log In</button>
+    <button class="tab" id="signupTab" onclick="switchTab('signup')">Sign Up</button>
+  </div>
 
-            if(username === correctUsername && password === correctPassword) {
-                alert("Login successful!");
-                // You can redirect to another page here
-                // window.location.href = "homepage.html";
-            } else {
-                errorDiv.textContent = "Invalid username or password!";
-            }
-        }
-    </script>
+  <div class="form-panel" id="loginForm">
+    <input type="email" id="loginEmail" placeholder="Email">
+    <input type="password" id="loginPassword" placeholder="Password">
+    <button class="submit-btn" id="loginBtn" onclick="logIn()">Log In</button>
+  </div>
+
+  <div class="form-panel hidden" id="signupForm">
+    <input type="email" id="signupEmail" placeholder="Email">
+    <input type="password" id="signupPassword" placeholder="Password (min. 6 characters)">
+    <input type="password" id="signupConfirm" placeholder="Confirm Password">
+    <button class="submit-btn" id="signupBtn" onclick="signUp()">Create Account</button>
+  </div>
+
+  <div class="message" id="message"></div>
+</div>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<script>
+  const client = supabaseClient;
+
+  if (!client) {
+    setTimeout(() => {
+      setMsg("Missing Supabase config. Define window.FINEPRINT_CONFIG before login.", "error");
+      document.getElementById('loginBtn').disabled = true;
+      document.getElementById('signupBtn').disabled = true;
+    }, 0);
+  }
+
+  // Already logged in? Skip to app
+  client.auth.getSession().then(({ data: { session } }) => {
+    if (session) window.location.href = "index.html";
+  });
+
+  function switchTab(tab) {
+    const isLogin = tab === 'login';
+    document.getElementById('loginTab').classList.toggle('active', isLogin);
+    document.getElementById('signupTab').classList.toggle('active', !isLogin);
+    document.getElementById('loginForm').classList.toggle('hidden', !isLogin);
+    document.getElementById('signupForm').classList.toggle('hidden', isLogin);
+    clearMsg();
+  }
+
+  function setMsg(text, type = 'error') {
+    const el = document.getElementById('message');
+    el.textContent = text;
+    el.className = 'message ' + type;
+  }
+  function clearMsg() {
+    const el = document.getElementById('message');
+    el.textContent = '';
+    el.className = 'message';
+  }
+
+  async function logIn() {
+    if (!client) return;
+    const email    = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    if (!email || !password) return setMsg("Please fill in all fields.");
+    document.getElementById('loginBtn').disabled = true;
+    const { error } = await client.auth.signInWithPassword({ email, password });
+    document.getElementById('loginBtn').disabled = false;
+    if (error) { setMsg(error.message); }
+    else { setMsg("Logging in...", "success"); setTimeout(() => window.location.href = "index.html", 800); }
+  }
+
+  async function signUp() {
+    if (!client) return;
+    const email    = document.getElementById('signupEmail').value.trim();
+    const password = document.getElementById('signupPassword').value;
+    const confirm  = document.getElementById('signupConfirm').value;
+    if (!email || !password || !confirm) return setMsg("Please fill in all fields.");
+    if (password.length < 6) return setMsg("Password must be at least 6 characters.");
+    if (password !== confirm) return setMsg("Passwords don't match.");
+    document.getElementById('signupBtn').disabled = true;
+    const { error } = await client.auth.signUp({ email, password });
+    document.getElementById('signupBtn').disabled = false;
+    if (error) { setMsg(error.message); }
+    else { setMsg("Account created! Check your email to confirm.", "success"); }
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter') return;
+    const isLogin = !document.getElementById('loginForm').classList.contains('hidden');
+    isLogin ? logIn() : signUp();
+  });
+</script>
 </body>
 </html>

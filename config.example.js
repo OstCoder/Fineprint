@@ -1,0 +1,7 @@
+window.FINEPRINT_CONFIG = {
+  SUPABASE_URL: "",
+  SUPABASE_ANON_KEY: "",
+  GROQ_KEY: "",
+  COURTLISTENER_TOKEN: "",
+  NEWS_API_KEY: ""
+};
