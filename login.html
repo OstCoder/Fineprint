@@ -171,7 +171,7 @@ input:focus { outline: none; border-color: #9B6B50; }
   client.auth.getSession().then(({ data: { session } }) => {
     if (session) {
       console.log("already logged in, going to index.html")
-      window.location.href = "app.html";
+      window.location.href = "home.html";
     } 
   });
 
@@ -204,7 +204,7 @@ input:focus { outline: none; border-color: #9B6B50; }
     const { error } = await client.auth.signInWithPassword({ email, password });
     document.getElementById('loginBtn').disabled = false;
     if (error) { setMsg(error.message); }
-    else { setMsg("Logging in...", "success"); setTimeout(() => window.location.href = "app.html", 800); }
+    else { setMsg("Logging in...", "success"); setTimeout(() => window.location.href = "home.html", 800); }
   }
 
   async function signUp() {
