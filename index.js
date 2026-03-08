@@ -3,9 +3,7 @@ const COURT_TOKEN = window.FINEPRINT_CONFIG.COURT_TOKEN;
 const NEWS_KEY    = window.FINEPRINT_CONFIG.NEWS_KEY;
 const GROQ_MODEL  = window.FINEPRINT_CONFIG.GROQ_MODEL;
 
-
-const GROQ_SYSTEM = `You are a legal analysis tool helping everyday people understand Terms & Conditions and Privacy Policies.
-Extract all relationships and identify red flags. Return ONLY valid JSON with no explanation, no markdown, no backticks.
+const GROQ_SYSTEM = `You are a legal analysis tool helping everyday people understand Terms & Conditions and Privacy Policies. Extract all relationships and identify red flags. Return ONLY valid JSON with no explanation, no markdown, no backticks.
 
 Format:
 {
@@ -32,25 +30,20 @@ Node types:
 - jurisdiction: legal jurisdiction or governing law
 - clause: important legal clause (arbitration, auto-renew, class action waiver, etc.)
 
-For red_flags, focus on things that genuinely harm the user: forced arbitration, class action waivers,
-data selling, auto-renewal traps, unilateral term changes, broad liability waivers, data sharing with
-governments, etc. Write as if explaining to a non-lawyer friend.`;
+For red_flags, focus on things that genuinely harm the user: forced arbitration, class action waivers, data selling, auto-renewal traps, unilateral term changes, broad liability waivers, data sharing with governments, etc. Write as if explaining to a non-lawyer friend.`;
 
-
-// ── Color for each node type in the graph ───────────────────
+// ── Color for each node type in the graph ──────────────────
 const NODE_COLORS = {
-  company:      "#e8d5a3",
-  data_broker:  "#ff6b6b",
-  ad_network:   "#ffa94d",
-  jurisdiction: "#74c0fc",
-  clause:       "#b197fc",
+  company:      "#9B6B50",
+  data_broker:  "#C96B6B",
+  ad_network:   "#D4944A",
+  jurisdiction: "#7AAECC",
+  clause:       "#A898D8",
 };
 
-
-// ── Global state ─────────────────────────────────────────────
+// ── Global state ────────────────────────────────────────────
 let currentParsed = null;
 let simulation    = null;
-
 
 // ============================================================
 //  STARTUP — Check login status
@@ -73,7 +66,6 @@ let simulation    = null;
   loadSavedTrees();
 })();
 
-
 // ============================================================
 //  SIGN OUT
 // ============================================================
@@ -81,7 +73,6 @@ document.getElementById('logout-btn').addEventListener('click', async () => {
   await supabaseClient.auth.signOut();
   window.location.href = "login.html";
 });
-
 
 // ============================================================
 //  FILE UPLOAD
@@ -148,7 +139,6 @@ async function readPdf(file) {
   }
   return text;
 }
-
 
 // ============================================================
 //  ANALYZE
@@ -230,7 +220,6 @@ async function callGroq(text) {
   return JSON.parse(jsonMatch[0]);
 }
 
-
 // ============================================================
 //  GRAPH
 // ============================================================
@@ -253,7 +242,7 @@ function renderGraph(parsed) {
     .attr("orient", "auto")
     .append("path")
     .attr("d", "M0,-5L10,0L0,5")
-    .attr("fill", "#764C34");
+    .attr("fill", "#9B6B50");
 
   const g = svg.append("g");
 
@@ -266,7 +255,7 @@ function renderGraph(parsed) {
   const link = g.append("g").selectAll("line")
     .data(edges)
     .enter().append("line")
-    .attr("stroke", "#392314")
+    .attr("stroke", "#C9B8AF")
     .attr("stroke-width", 1.5)
     .attr("marker-end", "url(#arrow)");
 
@@ -274,7 +263,7 @@ function renderGraph(parsed) {
     .data(edges)
     .enter().append("text")
     .attr("font-size", "9px")
-    .attr("fill", "#B9B9B7")
+    .attr("fill", "#9E8880")
     .attr("text-anchor", "middle")
     .attr("font-family", "Courier Prime, monospace")
     .text(d => d.label);
@@ -300,8 +289,8 @@ function renderGraph(parsed) {
 
   node.append("circle")
     .attr("r",            d => d.type === 'company' ? 18 : 12)
-    .attr("fill",         d => NODE_COLORS[d.type] || "#B9B9B7")
-    .attr("stroke",       d => d.type === 'company' ? "#F4E3B0" : "transparent")
+    .attr("fill",         d => NODE_COLORS[d.type] || "#C8C3BF")
+    .attr("stroke",       d => d.type === 'company' ? "#3B2016" : "transparent")
     .attr("stroke-width", 2)
     .attr("opacity", 0.9);
 
@@ -310,7 +299,7 @@ function renderGraph(parsed) {
     .attr("text-anchor", "middle")
     .attr("font-size",   d => d.type === 'company' ? "12px" : "10px")
     .attr("font-family", "Courier Prime, monospace")
-    .attr("fill",        "#F4E3B0")
+    .attr("fill",        "#3B2016")
     .attr("font-weight", d => d.type === 'company' ? "700" : "400")
     .text(d => d.label.length > 18 ? d.label.slice(0, 16) + '…' : d.label);
 
@@ -389,7 +378,7 @@ function clauseExplain(label) {
 const tooltip = document.getElementById('tooltip');
 
 function showTooltip(event, d) {
-  const color   = NODE_COLORS[d.type] || '#764C34';
+  const color   = NODE_COLORS[d.type] || '#9B6B50';
   const explain = NODE_EXPLANATIONS[d.type]
     ? NODE_EXPLANATIONS[d.type](d.label)
     : { badge: d.type.replace('_', ' '), desc: d.label };
@@ -430,7 +419,6 @@ function clearGraph() {
   document.getElementById('save-btn').style.display          = 'none';
 }
 
-
 // ============================================================
 //  RED FLAGS
 // ============================================================
@@ -462,7 +450,6 @@ function renderRedFlags(flags) {
 
   section.style.display = 'block';
 }
-
 
 // ============================================================
 //  LEGAL ACTIVITY
@@ -553,7 +540,6 @@ async function fetchNewsAPI(company) {
   }
 }
 
-// ── THE FIX: cards are now fully clickable links ──
 function renderLawsuits(results) {
   const list = document.getElementById('lawsuit-list');
   list.innerHTML = '';
@@ -567,7 +553,6 @@ function renderLawsuits(results) {
     const card = document.createElement('div');
     card.className = `lawsuit-card ${r.type}`;
 
-    // If we have a URL, the whole card is a clickable link
     if (r.url && r.url !== '#') {
       card.style.cursor = 'pointer';
       card.title = 'Click to open full case / article';
@@ -594,7 +579,6 @@ function setLawsuitStatus(msg) {
   document.getElementById('lawsuit-list').innerHTML = `<div id="lawsuit-empty">${msg}</div>`;
 }
 function clearLawsuits() { setLawsuitStatus('Awaiting analysis...'); }
-
 
 // ============================================================
 //  SAVE & LOAD
@@ -658,7 +642,6 @@ async function loadSavedTrees() {
     list.appendChild(item);
   });
 }
-
 
 // ============================================================
 //  UTILITY HELPERS
