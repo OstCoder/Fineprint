@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fineprint — Dashboard</title>
+  <link rel="icon" type="image/svg+xml" href="images/fineprint-favicon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --dark: #3B2016;
+      --light: #F7F3F0;
+      --light2: #F3EDE9;
+      --light1: #FAF7F5;
+      --light4: #EAE0DB;
+      --light5: #D6C9C3;
+      --light6: #9E8880;
+      --midcolor: #C4A898;
+      --midcolor2: #9C7B68;
+      --midcolor3: #7A5843;
+      --brown: #9B6B50;
+      --silver: #C8C3BF;
+      --red: #C96B6B;
+      --orange: #D4944A;
+      --blue: #7AAECC;
+      --purple: #A898D8;
+      --green: #5DC49A;
+      --surface-raised: #FFFFFF;
+      --border-subtle: #E2D8D2;
+      --border-mid: #C9B8AF;
+      --highlight-warm: #F5EADB;
+      --hover-fill: #EDE3DC;
+      --accent-glow: #D4A880;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      background: var(--light1);
+      color: var(--dark);
+      font-family: 'Space Mono', monospace;
+      overflow: hidden;
+    }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--light2); }
+    ::-webkit-scrollbar-thumb { background: var(--light5); border-radius: 2px; }
+
+    /* ── TOPBAR ── */
+    #topbar {
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      background: var(--light2);
+      border-bottom: 1px solid var(--border-subtle);
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      color: var(--midcolor3);
+      letter-spacing: -0.5px;
+    }
+    .logo span { color: var(--brown); }
+
+    .tagline {
+      font-size: 10px;
+      color: var(--light6);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #user-email {
+      font-size: 11px;
+      color: var(--light6);
+    }
+
+    .btn-sm {
+      padding: 5px 12px;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      border-radius: 4px;
+      border: 1px solid var(--border-mid);
+      background: transparent;
+      color: var(--dark);
+      cursor: pointer;
+      transition: all 0.15s;
+      letter-spacing: 1px;
+    }
+    .btn-sm:hover { background: var(--midcolor); color: var(--light1); }
+
+    .btn-primary {
+      padding: 5px 14px;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      border-radius: 4px;
+      border: none;
+      background: var(--brown);
+      color: var(--light1);
+      cursor: pointer;
+      transition: all 0.15s;
+      letter-spacing: 1px;
+    }
+    .btn-primary:hover { background: var(--midcolor3); }
+
+    /* ── LAYOUT ── */
+    #page {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      height: 100vh;
+      padding-top: 52px;
+    }
+
+    /* ── SIDEBAR ── */
+    #sidebar {
+      background: var(--light2);
+      border-right: 1px solid var(--border-subtle);
+      padding: 20px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      overflow-y: auto;
+    }
+
+    .sidebar-label {
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--light6);
+      padding: 12px 10px 6px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      color: var(--midcolor3);
+      cursor: pointer;
+      transition: all 0.15s;
+      border: 1px solid transparent;
+      text-decoration: none;
+    }
+    .nav-item:hover {
+      background: var(--hover-fill);
+      color: var(--dark);
+    }
+    .nav-item.active {
+      background: var(--highlight-warm);
+      color: var(--dark);
+      border-color: var(--border-subtle);
+      font-weight: 700;
+    }
+    .nav-icon { font-size: 14px; width: 18px; text-align: center; }
+
+    .sidebar-divider {
+      height: 1px;
+      background: var(--border-subtle);
+      margin: 8px 0;
+    }
+
+    /* ── MAIN CONTENT ── */
+    #main {
+      overflow-y: auto;
+      padding: 28px 32px;
+      background: var(--light1);
+    }
+
+    /* ── PAGE HEADER ── */
+    .page-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .page-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 26px;
+      color: var(--dark);
+      letter-spacing: -0.5px;
+      line-height: 1;
+    }
+    .page-subtitle {
+      font-size: 11px;
+      color: var(--light6);
+      margin-top: 5px;
+      letter-spacing: 0.3px;
+    }
+
+    /* ── STAT CARDS ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: var(--surface-raised);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 16px 18px;
+    }
+
+    .stat-label {
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--light6);
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      color: var(--dark);
+      line-height: 1;
+    }
+
+    .stat-sub {
+      font-size: 10px;
+      color: var(--light6);
+      margin-top: 4px;
+    }
+
+    .stat-card.accent-red { border-left: 3px solid var(--red); }
+    .stat-card.accent-blue { border-left: 3px solid var(--blue); }
+    .stat-card.accent-green { border-left: 3px solid var(--green); }
+    .stat-card.accent-orange { border-left: 3px solid var(--orange); }
+
+    /* ── SECTION TITLE ── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 14px;
+      color: var(--dark);
+      letter-spacing: -0.3px;
+    }
+
+    .section-link {
+      font-size: 10px;
+      color: var(--brown);
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+    .section-link:hover { color: var(--midcolor3); }
+
+    /* ── CONTENT GRID ── */
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 20px;
+    }
+
+    /* ── RECENT ANALYSES TABLE ── */
+    .analyses-table {
+      background: var(--surface-raised);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .table-head {
+      display: grid;
+      grid-template-columns: 1fr 90px 80px 60px;
+      padding: 10px 16px;
+      background: var(--light2);
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--light6);
+    }
+
+    .table-row {
+      display: grid;
+      grid-template-columns: 1fr 90px 80px 60px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-subtle);
+      align-items: center;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .table-row:last-child { border-bottom: none; }
+    .table-row:hover { background: var(--hover-fill); }
+
+    .row-company {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--dark);
+    }
+    .row-date {
+      font-size: 10px;
+      color: var(--light6);
+    }
+    .row-flags {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      color: var(--red);
+      font-weight: 700;
+    }
+    .row-action {
+      font-size: 10px;
+      color: var(--brown);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .empty-table {
+      padding: 36px 16px;
+      text-align: center;
+      font-size: 11px;
+      color: var(--light6);
+      letter-spacing: 0.5px;
+    }
+
+    .spinner-sm {
+      display: inline-block;
+      width: 10px; height: 10px;
+      border: 2px solid rgba(59,32,22,0.1);
+      border-top-color: var(--brown);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 5px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── RIGHT COLUMN ── */
+    .right-col {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* ── QUICK ANALYZE CARD ── */
+    .quick-card {
+      background: var(--surface-raised);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 18px;
+    }
+
+    .quick-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 14px;
+      color: var(--dark);
+      margin-bottom: 10px;
+    }
+
+    .quick-input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: var(--dark);
+      background: var(--light1);
+      resize: none;
+      transition: border 0.2s;
+      height: 80px;
+      margin-bottom: 10px;
+    }
+    .quick-input:focus { outline: none; border-color: var(--accent-glow); }
+    .quick-input::placeholder { color: var(--light6); }
+
+    .quick-btn {
+      width: 100%;
+      padding: 10px;
+      background: var(--brown);
+      color: var(--light1);
+      font-family: 'Playfair Display', serif;
+      font-size: 14px;
+      font-weight: 700;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      transition: background 0.2s;
+    }
+    .quick-btn:hover { background: var(--midcolor3); }
+
+    /* ── LEGEND CARD ── */
+    .legend-card {
+      background: var(--surface-raised);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 16px 18px;
+    }
+
+    .legend-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 13px;
+      color: var(--dark);
+      margin-bottom: 12px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 11px;
+      color: var(--midcolor3);
+    }
+    .legend-item:last-child { border-bottom: none; }
+
+    .legend-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .legend-desc {
+      font-size: 10px;
+      color: var(--light6);
+      margin-left: auto;
+    }
+
+    /* ── TIPS CARD ── */
+    .tips-card {
+      background: var(--highlight-warm);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 16px 18px;
+    }
+
+    .tips-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 13px;
+      color: var(--dark);
+      margin-bottom: 10px;
+    }
+
+    .tip {
+      font-size: 10px;
+      color: var(--midcolor3);
+      line-height: 1.7;
+      padding: 5px 0;
+      border-bottom: 1px solid rgba(59,32,22,0.08);
+    }
+    .tip:last-child { border-bottom: none; }
+    .tip strong { color: var(--dark); }
+
+    /* ── NEXT STEPS MODAL ── */
+    #ns-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(59, 32, 22, 0.35);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    #ns-overlay.open { display: flex; }
+
+    #ns-modal {
+      background: var(--light1);
+      border: 1px solid var(--border-mid);
+      border-radius: 12px;
+      width: 580px;
+      max-width: 95vw;
+      max-height: 88vh;
+      overflow-y: auto;
+      box-shadow: 0 24px 60px rgba(59,32,22,0.18);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ns-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .ns-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      color: var(--dark);
+      letter-spacing: -0.5px;
+    }
+
+    .ns-close {
+      background: none;
+      border: none;
+      font-size: 18px;
+      color: var(--light6);
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 4px;
+      transition: all 0.15s;
+    }
+    .ns-close:hover { background: var(--hover-fill); color: var(--dark); }
+
+    .ns-body { padding: 20px 24px; display: flex; flex-direction: column; gap: 18px; }
+
+    .ns-step { display: none; flex-direction: column; gap: 14px; }
+    .ns-step.active { display: flex; }
+
+    .ns-step-label {
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--light6);
+    }
+
+    .ns-step-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 16px;
+      color: var(--dark);
+    }
+
+    .ns-step-sub {
+      font-size: 11px;
+      color: var(--midcolor3);
+      line-height: 1.7;
+    }
+
+    /* Analysis picker */
+    .ns-analysis-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+
+    .ns-analysis-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+      background: var(--surface-raised);
+    }
+    .ns-analysis-item:hover { border-color: var(--accent-glow); background: var(--highlight-warm); }
+    .ns-analysis-item.selected { border-color: var(--brown); background: var(--highlight-warm); }
+
+    .ns-analysis-company { font-size: 12px; font-weight: 700; color: var(--dark); }
+    .ns-analysis-meta { font-size: 10px; color: var(--light6); margin-top: 2px; }
+    .ns-analysis-flags { font-size: 10px; color: var(--red); font-weight: 700; }
+
+    /* Bucket picker */
+    .ns-bucket-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .ns-bucket {
+      padding: 16px;
+      border: 1.5px solid var(--border-subtle);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+      background: var(--surface-raised);
+      text-align: left;
+    }
+    .ns-bucket:hover { border-color: var(--accent-glow); background: var(--highlight-warm); }
+    .ns-bucket.selected { border-color: var(--brown); background: var(--highlight-warm); }
+
+    .ns-bucket-icon { font-size: 22px; margin-bottom: 8px; }
+    .ns-bucket-label { font-size: 12px; font-weight: 700; color: var(--dark); margin-bottom: 4px; }
+    .ns-bucket-desc { font-size: 10px; color: var(--midcolor3); line-height: 1.5; }
+
+    /* API key input */
+    .ns-input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: var(--dark);
+      background: var(--surface-raised);
+      transition: border 0.2s;
+    }
+    .ns-input:focus { outline: none; border-color: var(--accent-glow); }
+    .ns-input::placeholder { color: var(--light6); }
+
+    .ns-input-label {
+      font-size: 10px;
+      color: var(--midcolor3);
+      margin-bottom: 5px;
+      letter-spacing: 0.5px;
+    }
+
+    /* Results */
+    #ns-result {
+      background: var(--surface-raised);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 16px;
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+    }
+    #ns-result.show { display: flex; }
+
+    .ns-result-section { display: flex; flex-direction: column; gap: 6px; }
+
+    .ns-result-heading {
+      font-family: 'Playfair Display', serif;
+      font-size: 13px;
+      color: var(--dark);
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .ns-result-body {
+      font-size: 11px;
+      color: var(--midcolor3);
+      line-height: 1.8;
+      white-space: pre-wrap;
+    }
+
+    .ns-action-card {
+      background: var(--highlight-warm);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 12px 14px;
+    }
+
+    .ns-action-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 6px;
+    }
+
+    .ns-action-body {
+      font-size: 11px;
+      color: var(--midcolor3);
+      line-height: 1.7;
+      white-space: pre-wrap;
+    }
+
+    /* Footer buttons */
+    .ns-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      border-top: 1px solid var(--border-subtle);
+      gap: 10px;
+    }
+
+    .ns-back {
+      font-size: 11px;
+      color: var(--light6);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: 'Space Mono', monospace;
+      letter-spacing: 0.5px;
+      padding: 6px 10px;
+      border-radius: 4px;
+      transition: all 0.15s;
+    }
+    .ns-back:hover { background: var(--hover-fill); color: var(--dark); }
+
+    .ns-next {
+      padding: 9px 20px;
+      background: var(--brown);
+      color: var(--light1);
+      font-family: 'Playfair Display', serif;
+      font-size: 14px;
+      font-weight: 700;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      transition: background 0.2s;
+    }
+    .ns-next:hover { background: var(--midcolor3); }
+    .ns-next:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .ns-progress {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+    }
+    .ns-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--light5);
+      transition: background 0.2s;
+    }
+    .ns-dot.active { background: var(--brown); }
+
+    .ns-spinner {
+      display: none;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(59,32,22,0.1);
+      border-top-color: var(--brown);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    .ns-spinner.show { display: inline-block; }
+  </style>
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <header id="topbar">
+    <div class="logo">fine<span>print</span></div>
+    <div class="tagline">Read between the lines</div>
+    <div class="topbar-right">
+      <span id="user-email"></span>
+      <button class="btn-primary" onclick="window.location.href='app.html'">+ New Analysis</button>
+      <button class="btn-sm" id="next-steps-btn" onclick="openNextSteps()">Next Steps ✦</button>
+      <button class="btn-sm" id="logout-btn">Sign Out</button>
+    </div>
+  </header>
+
+  <div id="page">
+
+    <!-- SIDEBAR -->
+    <nav id="sidebar">
+      <div class="sidebar-label">Navigation</div>
+      <a class="nav-item active" href="home.html">
+        <span class="nav-icon">⬛</span> Dashboard
+      </a>
+      <a class="nav-item" href="app.html">
+        <span class="nav-icon">🔍</span> Analyze
+      </a>
+
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-label">Saved</div>
+      <div id="sidebar-saved-list">
+        <div class="nav-item" style="color: var(--light6); font-size: 11px; cursor: default;">Loading...</div>
+      </div>
+    </nav>
+
+    <!-- MAIN -->
+    <main id="main">
+
+      <div class="page-header">
+        <div>
+          <div class="page-title">Dashboard</div>
+          <div class="page-subtitle">Your legal analysis history at a glance</div>
+        </div>
+        <button class="btn-primary" onclick="window.location.href='app.html'">+ New Analysis</button>
+      </div>
+
+      <!-- STATS -->
+      <div class="stats-row">
+        <div class="stat-card accent-blue">
+          <div class="stat-label">Total Analyses</div>
+          <div class="stat-value" id="stat-total">—</div>
+          <div class="stat-sub">documents analyzed</div>
+        </div>
+        <div class="stat-card accent-red">
+          <div class="stat-label">Red Flags Found</div>
+          <div class="stat-value" id="stat-flags">—</div>
+          <div class="stat-sub">across all documents</div>
+        </div>
+        <div class="stat-card accent-orange">
+          <div class="stat-label">Companies Tracked</div>
+          <div class="stat-value" id="stat-companies">—</div>
+          <div class="stat-sub">unique companies</div>
+        </div>
+        <div class="stat-card accent-green">
+          <div class="stat-label">Entities Mapped</div>
+          <div class="stat-value" id="stat-entities">—</div>
+          <div class="stat-sub">nodes across all graphs</div>
+        </div>
+      </div>
+
+      <!-- CONTENT GRID -->
+      <div class="content-grid">
+
+        <!-- LEFT: RECENT ANALYSES -->
+        <div>
+          <div class="section-header">
+            <div class="section-title">Recent Analyses</div>
+            <a class="section-link" href="app.html">+ New →</a>
+          </div>
+
+          <div class="analyses-table">
+            <div class="table-head">
+              <div>Company</div>
+              <div>Date</div>
+              <div>Red Flags</div>
+              <div></div>
+            </div>
+            <div id="analyses-body">
+              <div class="empty-table">
+                <span class="spinner-sm"></span> Loading analyses...
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT COL -->
+        <div class="right-col">
+
+          <!-- QUICK ANALYZE -->
+          <div class="quick-card">
+            <h3>Quick Analyze</h3>
+            <textarea class="quick-input" id="quick-paste" placeholder="Paste a snippet of Terms & Conditions to jump straight into analysis..."></textarea>
+            <button class="quick-btn" onclick="quickAnalyze()">Analyze →</button>
+          </div>
+
+          <!-- LEGEND -->
+          <div class="legend-card">
+            <h3>Node Types</h3>
+            <div class="legend-item">
+              <div class="legend-dot" style="background:#9B6B50"></div>
+              Company
+              <span class="legend-desc">Main entity</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot" style="background:#C96B6B"></div>
+              Data Broker
+              <span class="legend-desc">Receives your data</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot" style="background:#D4944A"></div>
+              Ad Network
+              <span class="legend-desc">Tracks & targets you</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot" style="background:#7AAECC"></div>
+              Jurisdiction
+              <span class="legend-desc">Governing law</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot" style="background:#A898D8"></div>
+              Legal Clause
+              <span class="legend-desc">Key contract terms</span>
+            </div>
+          </div>
+
+          <!-- TIPS -->
+          <div class="tips-card">
+            <h3>What to watch for</h3>
+            <div class="tip"><strong>Forced Arbitration</strong> — Strips your right to sue in court.</div>
+            <div class="tip"><strong>Class Action Waiver</strong> — You fight the company alone.</div>
+            <div class="tip"><strong>Auto-Renewal</strong> — Charges your card without warning.</div>
+            <div class="tip"><strong>Data Brokers</strong> — Third parties buying your data.</div>
+            <div class="tip"><strong>Broad License</strong> — They own your content forever.</div>
+          </div>
+
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- NEXT STEPS MODAL -->
+  <div id="ns-overlay" onclick="overlayClick(event)">
+    <div id="ns-modal">
+
+      <div class="ns-header">
+        <div class="ns-title">Next Steps ✦</div>
+        <button class="ns-close" onclick="closeNextSteps()">✕</button>
+      </div>
+
+      <div class="ns-body">
+
+        <!-- STEP 1: Pick analysis -->
+        <div class="ns-step active" id="ns-step-1">
+          <div class="ns-step-label">Step 1 of 3</div>
+          <div class="ns-step-title">Which analysis are we working with?</div>
+          <div class="ns-step-sub">Select a saved analysis to get tailored advice on what you can actually do about it.</div>
+          <div class="ns-analysis-list" id="ns-analysis-list">
+            <div style="font-size:11px;color:var(--light6);padding:10px;">Loading your analyses...</div>
+          </div>
+        </div>
+
+        <!-- STEP 2: Pick bucket -->
+        <div class="ns-step" id="ns-step-2">
+          <div class="ns-step-label">Step 2 of 3</div>
+          <div class="ns-step-title">Where do you stand?</div>
+          <div class="ns-step-sub">Be honest — this shapes the advice you'll get.</div>
+          <div class="ns-bucket-grid">
+            <div class="ns-bucket" onclick="selectBucket('accept')" id="bucket-accept">
+              <div class="ns-bucket-icon">✅</div>
+              <div class="ns-bucket-label">I'll accept the terms</div>
+              <div class="ns-bucket-desc">I need this service and I'm going to agree. Help me minimize my risk and understand what I'm actually signing.</div>
+            </div>
+            <div class="ns-bucket" onclick="selectBucket('negotiate')" id="bucket-negotiate">
+              <div class="ns-bucket-icon">⚖️</div>
+              <div class="ns-bucket-label">I want to push back</div>
+              <div class="ns-bucket-desc">I'm a business or have leverage — I want to negotiate specific clauses or request changes before agreeing.</div>
+            </div>
+            <div class="ns-bucket" onclick="selectBucket('avoid')" id="bucket-avoid">
+              <div class="ns-bucket-icon">🚪</div>
+              <div class="ns-bucket-label">I might walk away</div>
+              <div class="ns-bucket-desc">The terms are bad enough that I want to know if there are real alternatives, and what leaving actually costs me.</div>
+            </div>
+            <div class="ns-bucket" onclick="selectBucket('report')" id="bucket-report">
+              <div class="ns-bucket-icon">📣</div>
+              <div class="ns-bucket-label">I want to escalate</div>
+              <div class="ns-bucket-desc">I think these terms may be illegal or deceptive — help me understand who to report this to and how.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 3: API key + generate -->
+        <div class="ns-step" id="ns-step-3">
+          <div class="ns-step-label">Step 3 of 3</div>
+          <div class="ns-step-title">Generate your action plan</div>
+          <div class="ns-step-sub">Fineprint will use the Groq API to generate a personalized plan based on your analysis and your situation.</div>
+
+          <div id="ns-result">
+            <div class="ns-result-section">
+              <div class="ns-result-heading" id="ns-result-heading">Your Action Plan</div>
+              <div class="ns-result-body" id="ns-result-summary"></div>
+            </div>
+            <div id="ns-actions-list"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="ns-footer">
+        <div class="ns-progress">
+          <div class="ns-dot active" id="dot-1"></div>
+          <div class="ns-dot" id="dot-2"></div>
+          <div class="ns-dot" id="dot-3"></div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <button class="ns-back" id="ns-back-btn" onclick="nsBack()" style="display:none;">← Back</button>
+          <button class="ns-next" id="ns-next-btn" onclick="nsNext()">
+            <span class="ns-spinner" id="ns-spinner"></span>
+            <span id="ns-next-label">Choose Analysis →</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase.js"></script>
+  <script>
+    // ── Auth check ──
+    (async () => {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) { window.location.href = 'login.html'; return; }
+      document.getElementById('user-email').textContent = session.user.email;
+      loadDashboard();
+    })();
+
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+      await supabaseClient.auth.signOut();
+      window.location.href = 'login.html';
+    });
+
+    // ── Load all saved trees and compute stats ──
+    async function loadDashboard() {
+      const { data, error } = await supabaseClient
+        .from('saved_trees')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error || !data) {
+        document.getElementById('analyses-body').innerHTML =
+          '<div class="empty-table">Could not load analyses.</div>';
+        return;
+      }
+
+      // Store for Next Steps modal
+      nsAllData = data;
+
+      // Stats
+      const total     = data.length;
+      const flags     = data.reduce((sum, t) => sum + JSON.parse(t.red_flags || '[]').length, 0);
+      const companies = new Set(data.map(t => t.company)).size;
+      const entities  = data.reduce((sum, t) => sum + JSON.parse(t.nodes || '[]').length, 0);
+
+      document.getElementById('stat-total').textContent     = total;
+      document.getElementById('stat-flags').textContent     = flags;
+      document.getElementById('stat-companies').textContent = companies;
+      document.getElementById('stat-entities').textContent  = entities;
+
+      // Table
+      const body = document.getElementById('analyses-body');
+      if (!data.length) {
+        body.innerHTML = `<div class="empty-table">No analyses yet — <a href="app.html" style="color:var(--brown)">start your first one →</a></div>`;
+        populateSidebar([]);
+        return;
+      }
+
+      body.innerHTML = data.map(t => {
+        const rfCount = JSON.parse(t.red_flags || '[]').length;
+        const date    = new Date(t.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        return `
+          <div class="table-row" onclick="openAnalysis('${t.id}')">
+            <div class="row-company">${t.company || 'Unknown'}</div>
+            <div class="row-date">${date}</div>
+            <div class="row-flags">${rfCount > 0 ? `⚠ ${rfCount}` : '<span style="color:var(--green)">✓ 0</span>'}</div>
+            <div class="row-action">Open →</div>
+          </div>`;
+      }).join('');
+
+      populateSidebar(data.slice(0, 6));
+    }
+
+    // ── Sidebar recent items ──
+    function populateSidebar(items) {
+      const el = document.getElementById('sidebar-saved-list');
+      if (!items.length) {
+        el.innerHTML = `<div class="nav-item" style="color:var(--light6);font-size:11px;cursor:default;">None yet</div>`;
+        return;
+      }
+      el.innerHTML = items.map(t => `
+        <div class="nav-item" onclick="openAnalysis('${t.id}')" style="cursor:pointer;">
+          <span class="nav-icon">📄</span>
+          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${t.company}</span>
+        </div>`).join('');
+    }
+
+    // ── Open a saved analysis in app.html ──
+    function openAnalysis(id) {
+      sessionStorage.setItem('fineprint_open_id', id);
+      window.location.href = 'app.html';
+    }
+
+    // ── Quick analyze: stash text and go to app ──
+    function quickAnalyze() {
+      const text = document.getElementById('quick-paste').value.trim();
+      if (!text) return;
+      sessionStorage.setItem('fineprint_quick_text', text);
+      window.location.href = 'app.html';
+    }
+
+    // ============================================================
+    //  NEXT STEPS MODAL
+    // ============================================================
+    let nsStep        = 1;
+    let nsSelectedId  = null;
+    let nsSelectedData = null;
+    let nsBucket      = null;
+    let nsAllData     = [];
+
+    function openNextSteps() {
+      document.getElementById('ns-overlay').classList.add('open');
+      populateNsAnalyses();
+      setNsStep(1);
+    }
+
+    function closeNextSteps() {
+      document.getElementById('ns-overlay').classList.remove('open');
+      // Reset
+      nsStep = 1; nsSelectedId = null; nsSelectedData = null; nsBucket = null;
+      document.getElementById('ns-result').classList.remove('show');
+      document.getElementById('ns-result-summary').textContent = '';
+      document.getElementById('ns-actions-list').innerHTML = '';
+      document.querySelectorAll('.ns-bucket').forEach(b => b.classList.remove('selected'));
+      document.querySelectorAll('.ns-analysis-item').forEach(i => i.classList.remove('selected'));
+    }
+
+    function overlayClick(e) {
+      if (e.target === document.getElementById('ns-overlay')) closeNextSteps();
+    }
+
+    function populateNsAnalyses() {
+      const list = document.getElementById('ns-analysis-list');
+      if (!nsAllData.length) {
+        list.innerHTML = `<div style="font-size:11px;color:var(--light6);padding:10px;">No saved analyses yet. <a href="app.html" style="color:var(--brown)">Run one first →</a></div>`;
+        return;
+      }
+      list.innerHTML = nsAllData.map(t => {
+        const flags = JSON.parse(t.red_flags || '[]').length;
+        const date  = new Date(t.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        return `
+          <div class="ns-analysis-item" id="ns-item-${t.id}" onclick="selectNsAnalysis('${t.id}')">
+            <div>
+              <div class="ns-analysis-company">${t.company || 'Unknown'}</div>
+              <div class="ns-analysis-meta">${date}</div>
+            </div>
+            <div class="ns-analysis-flags">${flags > 0 ? `⚠ ${flags} flags` : '✓ Clean'}</div>
+          </div>`;
+      }).join('');
+    }
+
+    function selectNsAnalysis(id) {
+      nsSelectedId = id;
+      nsSelectedData = nsAllData.find(t => t.id === id);
+      document.querySelectorAll('.ns-analysis-item').forEach(i => i.classList.remove('selected'));
+      document.getElementById(`ns-item-${id}`)?.classList.add('selected');
+    }
+
+    function selectBucket(bucket) {
+      nsBucket = bucket;
+      document.querySelectorAll('.ns-bucket').forEach(b => b.classList.remove('selected'));
+      document.getElementById(`bucket-${bucket}`)?.classList.add('selected');
+    }
+
+    function setNsStep(step) {
+      nsStep = step;
+      document.querySelectorAll('.ns-step').forEach(s => s.classList.remove('active'));
+      document.getElementById(`ns-step-${step}`)?.classList.add('active');
+
+      // Progress dots
+      document.querySelectorAll('.ns-dot').forEach((d, i) => {
+        d.classList.toggle('active', i < step);
+      });
+
+      // Back button
+      document.getElementById('ns-back-btn').style.display = step > 1 ? 'inline-block' : 'none';
+
+      // Next button label
+      const labels = { 1: 'Choose Analysis →', 2: 'Set My Situation →', 3: 'Generate Plan ✦' };
+      document.getElementById('ns-next-label').textContent = labels[step];
+    }
+
+    function nsBack() {
+      if (nsStep > 1) setNsStep(nsStep - 1);
+    }
+
+    async function nsNext() {
+      if (nsStep === 1) {
+        if (!nsSelectedId) { flashEl('ns-analysis-list'); return; }
+        setNsStep(2);
+      } else if (nsStep === 2) {
+        if (!nsBucket) { flashEl('ns-bucket-grid'); return; }
+        setNsStep(3);
+      } else if (nsStep === 3) {
+        await generatePlan();
+      }
+    }
+
+    function flashEl(id) {
+      const el = document.querySelector(`#${id}, .${id}`);
+      if (!el) return;
+      el.style.outline = `2px solid var(--red)`;
+      setTimeout(() => el.style.outline = '', 600);
+    }
+
+    async function generatePlan() {
+      const key = window.FINEPRINT_CONFIG?.GROQ_KEY;
+      if (!key) {
+        document.getElementById('ns-result-summary').textContent = 'Error: No Groq API key found. Make sure config.js defines window.FINEPRINT_CONFIG.GROQ_KEY.';
+        document.getElementById('ns-result').classList.add('show');
+        return;
+      }
+
+      const spinner  = document.getElementById('ns-spinner');
+      const nextBtn  = document.getElementById('ns-next-btn');
+      const result   = document.getElementById('ns-result');
+      spinner.classList.add('show');
+      nextBtn.disabled = true;
+      result.classList.remove('show');
+
+      const tree = nsSelectedData;
+      const redFlags  = JSON.parse(tree.red_flags  || '[]');
+      const nodes     = JSON.parse(tree.nodes      || '[]');
+      const company   = tree.company || 'this company';
+
+      const bucketLabels = {
+        accept:    'I have decided to accept the terms and want to minimize my personal risk.',
+        negotiate: 'I want to negotiate or push back on specific clauses before agreeing.',
+        avoid:     'I am considering walking away and want to know my alternatives and what leaving costs me.',
+        report:    'I believe these terms may be illegal or deceptive and want to escalate or report them.',
+      };
+
+      const flagSummary = redFlags.map((f, i) =>
+        `${i+1}. ${f.title || f}: ${f.what || ''} Impact: ${f.impact || ''}`
+      ).join('\n');
+
+      const entityList = nodes.map(n => `${n.label} (${n.type})`).join(', ');
+
+      const prompt = `You are a consumer legal advisor helping a non-lawyer understand their options after reviewing Terms & Conditions.
+
+Company: ${company}
+User's situation: ${bucketLabels[nsBucket]}
+
+Red flags found in the T&C:
+${flagSummary || 'None identified.'}
+
+Entities involved: ${entityList || 'None listed.'}
+
+Based on the user's situation and these red flags, provide:
+
+1. A 2-3 sentence plain-English assessment of their situation and whether their goal is realistic.
+2. Between 2 and 4 concrete action items they can actually take RIGHT NOW. For each action, give it a short title and a specific, detailed description. If relevant, draft the actual text they could use (e.g. an email to the company's legal team, a complaint to the FTC, a message requesting a clause amendment, etc.).
+
+Format your response as JSON only, no markdown, no explanation:
+{
+  "assessment": "...",
+  "actions": [
+    { "title": "...", "description": "...", "draft": "..." }
+  ]
+}
+The "draft" field should contain ready-to-use text when relevant (email body, complaint text, opt-out message, etc.), or be an empty string if not applicable.`;
+
+      try {
+        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'llama-3.3-70b-versatile',
+            messages: [{ role: 'user', content: prompt }],
+            temperature: 0.3,
+            max_tokens: 1500
+          })
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err?.error?.message || `HTTP ${res.status}`);
+        }
+
+        const data    = await res.json();
+        const raw     = data.choices[0].message.content;
+        const match   = raw.match(/\{[\s\S]*\}/);
+        if (!match) throw new Error('No JSON in response');
+        const parsed  = JSON.parse(match[0]);
+
+        // Render
+        const bucketHeadings = {
+          accept:    'How to protect yourself while accepting',
+          negotiate: 'How to push back on these terms',
+          avoid:     'Your options if you walk away',
+          report:    'How to escalate this',
+        };
+        document.getElementById('ns-result-heading').textContent = bucketHeadings[nsBucket] || 'Your Action Plan';
+        document.getElementById('ns-result-summary').textContent = parsed.assessment || '';
+
+        const actionsEl = document.getElementById('ns-actions-list');
+        actionsEl.innerHTML = (parsed.actions || []).map(a => `
+          <div class="ns-action-card">
+            <div class="ns-action-title">${a.title}</div>
+            <div class="ns-action-body">${a.description}</div>
+            ${a.draft ? `
+              <div style="margin-top:10px;padding:10px;background:var(--light2);border-radius:4px;border:1px solid var(--border-subtle);">
+                <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--light6);margin-bottom:6px;">Draft Text</div>
+                <div class="ns-action-body" style="color:var(--dark);">${a.draft}</div>
+              </div>` : ''}
+          </div>`).join('');
+
+        result.classList.add('show');
+
+      } catch (err) {
+        document.getElementById('ns-result-summary').textContent = 'Error: ' + err.message;
+        document.getElementById('ns-actions-list').innerHTML = '';
+        result.classList.add('show');
+      } finally {
+        spinner.classList.remove('show');
+        nextBtn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>

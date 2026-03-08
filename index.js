@@ -66,6 +66,28 @@ let simulation    = null;
   loadSavedTrees();
 })();
 
+// 1. Handle quick-analyze text passed from dashboard
+const quickText = sessionStorage.getItem('fineprint_quick_text');
+if (quickText) {
+  sessionStorage.removeItem('fineprint_quick_text');
+  document.getElementById('paste-area').value = quickText;
+  analyze(); // auto-run
+}
+
+// 2. Handle open-saved-analysis passed from dashboard
+const openId = sessionStorage.getItem('fineprint_open_id');
+if (openId) {
+  sessionStorage.removeItem('fineprint_open_id');
+  // loadSavedTrees will run below — intercept after load
+  window._autoOpenId = openId;
+}
+
+// ── Also update loadSavedTrees() — after list.appendChild(item), add at the bottom of the forEach: ──
+if (window._autoOpenId && tree.id === window._autoOpenId) {
+  window._autoOpenId = null;
+  item.click(); // auto-open the matching saved tree
+}
+
 // ============================================================
 //  SIGN OUT
 // ============================================================
