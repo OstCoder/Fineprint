@@ -3,7 +3,13 @@ const COURT_TOKEN = window.FINEPRINT_CONFIG.COURT_TOKEN;
 const NEWS_KEY    = window.FINEPRINT_CONFIG.NEWS_KEY;
 const GROQ_MODEL  = window.FINEPRINT_CONFIG.GROQ_MODEL;
 
-const GROQ_SYSTEM = `You are a legal analysis tool helping everyday people understand Terms & Conditions and Privacy Policies. Extract all relationships and identify red flags. Return ONLY valid JSON with no explanation, no markdown, no backticks.
+const GROQ_SYSTEM = `You are a legal analysis tool that helps everyday people understand what they actually agreed to in Terms & Conditions and Privacy Policies.
+
+Your job is to surface TWO types of things:
+1. Hidden surprises — things the company does that users would NEVER expect and that have no obvious connection to the service. Examples: TikTok collecting your voice biometrics, Spotify sharing your data with record labels, apps selling your GPS location to hedge funds, apps accessing your clipboard, camera, or contacts silently.
+2. Legal traps — clauses that directly harm users: forced arbitration, class action waivers, auto-renewal, data selling, unilateral term changes, government data sharing, broad liability waivers, content ownership grabs.
+
+Return ONLY valid JSON with no explanation, no markdown, no backticks.
 
 Format:
 {
@@ -14,11 +20,12 @@ Format:
   "edges": [
     { "source": "id1", "target": "id2", "label": "relationship description" }
   ],
-  "red_flags": [
+  "need_to_knows": [
     {
-      "title": "Short plain-English name for the issue (e.g. 'No jury trial allowed')",
-      "what": "One sentence explaining what this clause actually does in plain English.",
-      "impact": "One sentence explaining how this directly affects the user."
+      "title": "Short punchy headline (e.g. 'They can record your voice anytime')",
+      "what": "One sentence explaining exactly what the clause says in plain English. Be specific about the data or action.",
+      "impact": "One sentence explaining the real-world consequence for the user. Make it personal and concrete.",
+      "severity": "high|medium|low"
     }
   ]
 }
@@ -28,9 +35,17 @@ Node types:
 - data_broker: third party that buys/receives data
 - ad_network: advertising partners
 - jurisdiction: legal jurisdiction or governing law
-- clause: important legal clause (arbitration, auto-renew, class action waiver, etc.)
+- clause: important legal clause
 
-For red_flags, focus on things that genuinely harm the user: forced arbitration, class action waivers, data selling, auto-renewal traps, unilateral term changes, broad liability waivers, data sharing with governments, etc. Write as if explaining to a non-lawyer friend.`;
+CRITICAL RULES for need_to_knows:
+- Sort by severity: high first, then medium, then low. The most alarming thing must be #1.
+- Include BOTH hidden surprises AND legal traps.
+- Be specific. BAD: "They collect your data." GOOD: "They collect your precise GPS location every 15 minutes, even when the app is closed."
+- severity=high: directly harms user financially, legally, or serious privacy violation
+- severity=medium: unfair or surprising but not immediately dangerous
+- severity=low: worth knowing but limited direct impact
+- Aim for 5-10 need_to_knows. More is better.
+- Write as if texting a friend who is about to sign up for this service.`;
 
 // ── Color for each node type in the graph ──────────────────
 const NODE_COLORS = {
@@ -39,6 +54,7 @@ const NODE_COLORS = {
   ad_network:   "#D4944A",
   jurisdiction: "#7AAECC",
   clause:       "#A898D8",
+  user:         "#6BAA75",
 };
 
 // ── Global state ────────────────────────────────────────────
@@ -71,21 +87,19 @@ const quickText = sessionStorage.getItem('fineprint_quick_text');
 if (quickText) {
   sessionStorage.removeItem('fineprint_quick_text');
   document.getElementById('paste-area').value = quickText;
-  analyze(); // auto-run
+  analyze();
 }
 
 // 2. Handle open-saved-analysis passed from dashboard
 const openId = sessionStorage.getItem('fineprint_open_id');
 if (openId) {
   sessionStorage.removeItem('fineprint_open_id');
-  // loadSavedTrees will run below — intercept after load
   window._autoOpenId = openId;
 }
 
-// ── Also update loadSavedTrees() — after list.appendChild(item), add at the bottom of the forEach: ──
-if (window._autoOpenId && tree.id === window._autoOpenId) {
+if (window._autoOpenId && typeof tree !== 'undefined' && tree.id === window._autoOpenId) {
   window._autoOpenId = null;
-  item.click(); // auto-open the matching saved tree
+  item.click();
 }
 
 // ============================================================
@@ -182,16 +196,16 @@ async function analyze() {
   try {
     const parsed = await callGroq(text);
 
-    parsed.nodes     = Array.isArray(parsed.nodes)     ? parsed.nodes     : [];
-    parsed.edges     = Array.isArray(parsed.edges)     ? parsed.edges     : [];
-    parsed.red_flags = Array.isArray(parsed.red_flags) ? parsed.red_flags : [];
-    currentParsed    = parsed;
+    parsed.nodes        = Array.isArray(parsed.nodes)        ? parsed.nodes        : [];
+    parsed.edges        = Array.isArray(parsed.edges)        ? parsed.edges        : [];
+    parsed.need_to_knows = Array.isArray(parsed.need_to_knows) ? parsed.need_to_knows : (Array.isArray(parsed.red_flags) ? parsed.red_flags : []);
+    currentParsed       = parsed;
 
     renderGraph(parsed);
-    renderRedFlags(parsed.red_flags);
+    renderNeedToKnows(parsed.need_to_knows);
 
     document.getElementById('save-btn').style.display = 'block';
-    setStatus(`✓ Found ${parsed.nodes.length} entities, ${parsed.edges.length} connections`, 'success');
+    setStatus(`✓ Found ${parsed.nodes.length} entities · ${parsed.need_to_knows.length} need-to-knows`, 'success');
 
     if (parsed.company) {
       fetchLawsuits(parsed.company);
@@ -246,7 +260,32 @@ async function callGroq(text) {
 //  GRAPH
 // ============================================================
 function renderGraph(parsed) {
-  const { nodes, edges, red_flags = [] } = parsed;
+  const { need_to_knows = [], red_flags = [] } = parsed;
+  const flags = need_to_knows.length ? need_to_knows : red_flags;
+
+  // Strip stale positions from saved nodes so the simulation starts fresh
+  const nodes = parsed.nodes.map(n => ({ ...n, x: undefined, y: undefined, vx: 0, vy: 0, fx: null, fy: null }));
+
+  // Inject a "You" node connected to the main company node
+  const companyNode = nodes.find(n => n.type === 'company');
+  const youNode = { id: '__you__', label: 'You', type: 'user', x: undefined, y: undefined, vx: 0, vy: 0, fx: null, fy: null };
+  nodes.push(youNode);
+
+  // Build edges: You → company (agreed to terms), You → any clause flagged high severity
+  const edges = [...parsed.edges];
+  if (companyNode) {
+    edges.push({ source: '__you__', target: companyNode.id, label: 'agreed to terms' });
+  }
+  // Connect You to high-severity need_to_knows that have a matching clause node
+  const highFlags = flags.filter(f => f.severity === 'high');
+  highFlags.forEach(f => {
+    const matchNode = nodes.find(n =>
+      n.type === 'clause' && f.title && n.label.toLowerCase().includes(f.title.toLowerCase().slice(0, 8))
+    );
+    if (matchNode) {
+      edges.push({ source: '__you__', target: matchNode.id, label: 'affected by' });
+    }
+  });
 
   document.getElementById('empty-state').style.display = 'none';
 
@@ -294,7 +333,7 @@ function renderGraph(parsed) {
     .data(nodes)
     .enter().append("g")
     .attr("class", d => {
-      const isRedFlag = red_flags.some(f => {
+      const isRedFlag = flags.some(f => {
         const flagText = typeof f === 'string' ? f : `${f.title || ''} ${f.what || ''}`;
         return flagText.toLowerCase().includes(d.label.toLowerCase());
       });
@@ -310,14 +349,15 @@ function renderGraph(parsed) {
     .on("mouseout",  hideTooltip);
 
   node.append("circle")
-    .attr("r",            d => d.type === 'company' ? 18 : 12)
+    .attr("r",            d => d.type === 'company' ? 18 : d.type === 'user' ? 16 : 12)
     .attr("fill",         d => NODE_COLORS[d.type] || "#C8C3BF")
-    .attr("stroke",       d => d.type === 'company' ? "#3B2016" : "transparent")
-    .attr("stroke-width", 2)
+    .attr("stroke",       d => (d.type === 'company' || d.type === 'user') ? "#3B2016" : "transparent")
+    .attr("stroke-width", d => d.type === 'user' ? 2.5 : 2)
+    .attr("stroke-dasharray", d => d.type === 'user' ? "4,2" : "none")
     .attr("opacity", 0.9);
 
   node.append("text")
-    .attr("dy",          d => d.type === 'company' ? 32 : 24)
+    .attr("dy",          d => d.type === 'company' ? 32 : d.type === 'user' ? 30 : 24)
     .attr("text-anchor", "middle")
     .attr("font-size",   d => d.type === 'company' ? "12px" : "10px")
     .attr("font-family", "Courier Prime, monospace")
@@ -374,6 +414,10 @@ const NODE_EXPLANATIONS = {
     badge: '📋 Legal Clause',
     desc:  clauseExplain(label),
   }),
+  user: () => ({
+    badge: '👤 You',
+    desc:  'This is you — the person who agreed to these terms. Every edge connected to you shows a direct relationship or obligation between you and the company or its legal clauses.',
+  }),
 };
 
 function clauseExplain(label) {
@@ -394,7 +438,7 @@ function clauseExplain(label) {
     return `A <strong>Content License</strong> means anything you post can be used by the company for free, forever, anywhere in the world — even after you delete your account.`;
   if (l.includes('governing law') || l.includes('choice of law'))
     return `A <strong>Governing Law clause</strong> locks all legal disputes into one specific state or country's legal system, regardless of where you live.`;
-  return `<strong>${label}</strong> is a legal clause in the Terms & Conditions. Check the red flags panel for more detail.`;
+  return `<strong>${label}</strong> is a legal clause in the Terms & Conditions. Check the need-to-knows panel for more detail.`;
 }
 
 const tooltip = document.getElementById('tooltip');
@@ -405,7 +449,8 @@ function showTooltip(event, d) {
     ? NODE_EXPLANATIONS[d.type](d.label)
     : { badge: d.type.replace('_', ' '), desc: d.label };
 
-  const isRedFlag = currentParsed?.red_flags?.some(f => {
+  const flags = currentParsed?.need_to_knows || currentParsed?.red_flags || [];
+  const isRedFlag = flags.some(f => {
     const txt = typeof f === 'string' ? f : `${f.title || ''} ${f.what || ''}`;
     return txt.toLowerCase().includes(d.label.toLowerCase());
   });
@@ -418,7 +463,7 @@ function showTooltip(event, d) {
     </div>
     <div class="tt-label">${d.label}</div>
     <div class="tt-desc">${explain.desc}</div>
-    ${isRedFlag ? `<div class="tt-redflag">🚩 Flagged as a red flag</div>` : ''}
+    ${isRedFlag ? `<div class="tt-redflag">🚩 Need to Know</div>` : ''}
   `;
 }
 
@@ -436,37 +481,57 @@ function hideTooltip() { tooltip.style.display = 'none'; }
 
 function clearGraph() {
   d3.select("#graph-canvas").selectAll("*").remove();
-  document.getElementById('empty-state').style.display       = 'flex';
-  document.getElementById('red-flags-section').style.display = 'none';
-  document.getElementById('save-btn').style.display          = 'none';
+  const emptyState = document.getElementById('empty-state');
+  if (emptyState) emptyState.style.display = 'flex';
+  // Support both old (red-flags-section) and new (need-to-knows-section) HTML
+  const ntk = document.getElementById('need-to-knows-section') || document.getElementById('red-flags-section');
+  if (ntk) ntk.style.display = 'none';
+  const saveBtn = document.getElementById('save-btn');
+  if (saveBtn) saveBtn.style.display = 'none';
 }
 
 // ============================================================
-//  RED FLAGS
+//  NEED TO KNOWS
 // ============================================================
-function renderRedFlags(flags) {
-  const section = document.getElementById('red-flags-section');
-  const list    = document.getElementById('red-flags-list');
+function renderNeedToKnows(flags) {
+  const section = document.getElementById('need-to-knows-section') || document.getElementById('red-flags-section');
+  const list    = document.getElementById('need-to-knows-list') || document.getElementById('red-flags-list');
   list.innerHTML = '';
 
-  if (!flags.length) {
+  if (!flags || !flags.length) {
     section.style.display = 'none';
     return;
   }
 
-  flags.forEach(f => {
+  // Sort: high first, then medium, then low
+  const order = { high: 0, medium: 1, low: 2 };
+  const sorted = [...flags].sort((a, b) => {
+    const sa = order[a.severity] ?? 1;
+    const sb = order[b.severity] ?? 1;
+    return sa - sb;
+  });
+
+  sorted.forEach((f, i) => {
     const li = document.createElement('li');
+    const severity = f.severity || 'medium';
+    const severityColor = severity === 'high' ? '#C96B6B' : severity === 'medium' ? '#D4944A' : '#7AAECC';
+    const severityLabel = severity === 'high' ? '🔴 HIGH' : severity === 'medium' ? '🟠 MEDIUM' : '🔵 LOW';
 
     if (typeof f === 'string') {
       li.innerHTML = `<span class="rf-title">${f}</span>`;
     } else {
       li.innerHTML = `
-        <span class="rf-title">${f.title || 'Issue Found'}</span>
-        ${f.what   ? `<span class="rf-what"><strong>What it means:</strong> ${f.what}</span>`           : ''}
-        ${f.impact ? `<span class="rf-impact"><strong>What it means for you:</strong> ${f.impact}</span>` : ''}
+        <div class="ntk-header">
+          <span class="ntk-number">#${i + 1}</span>
+          <span class="ntk-severity" style="color:${severityColor}">${severityLabel}</span>
+        </div>
+        <span class="rf-title">${f.title || 'Need to Know'}</span>
+        ${f.what   ? `<span class="rf-what"><strong>What it says:</strong> ${f.what}</span>`               : ''}
+        ${f.impact ? `<span class="rf-impact"><strong>What it means for you:</strong> ${f.impact}</span>`  : ''}
       `;
     }
 
+    li.style.borderLeftColor = severityColor;
     list.appendChild(li);
   });
 
@@ -518,12 +583,16 @@ async function fetchCourtListener(company) {
         caseUrl = `https://www.courtlistener.com${c.absolute_url}`;
       }
 
+      const nature = c.nature_of_suit || '';
+      const desc   = nature ? nature.slice(0, 180) : null;
+
       return {
-        type:   'court',
-        title:  c.caseName || c.case_name || 'Unknown Case',
-        source: c.court_citation_string || c.court || 'Federal Court',
-        date:   c.dateFiled || c.date_filed || '',
-        url:    caseUrl
+        type:        'court',
+        title:       c.caseName || c.case_name || 'Unknown Case',
+        description: desc,
+        source:      c.court_citation_string || c.court || 'Federal Court',
+        date:        c.dateFiled || c.date_filed || '',
+        url:         caseUrl
       };
     });
   } catch (e) {
@@ -551,11 +620,12 @@ async function fetchNewsAPI(company) {
       ))
       .slice(0, 5)
       .map(a => ({
-        type:   'news',
-        title:  a.title,
-        source: a.source.name,
-        date:   a.publishedAt?.slice(0, 10) || '',
-        url:    a.url
+        type:        'news',
+        title:       a.title,
+        description: a.description ? a.description.slice(0, 180) + (a.description.length > 180 ? '…' : '') : null,
+        source:      a.source.name,
+        date:        a.publishedAt?.slice(0, 10) || '',
+        url:         a.url
       }));
   } catch {
     return [];
@@ -574,22 +644,18 @@ function renderLawsuits(results) {
   results.forEach(r => {
     const card = document.createElement('div');
     card.className = `lawsuit-card ${r.type}`;
-
-    if (r.url && r.url !== '#') {
-      card.style.cursor = 'pointer';
-      card.title = 'Click to open full case / article';
-      card.addEventListener('click', () => window.open(r.url, '_blank', 'noopener,noreferrer'));
-    }
+    const hasLink = r.url && r.url !== '#';
 
     card.innerHTML = `
       <div class="lc-title">${r.title}</div>
+      ${r.description ? `<div class="lc-description">${r.description}</div>` : ''}
       <div class="lc-meta">
         ${r.source}${r.date ? ' · ' + r.date : ''}
         · ${r.type === 'court' ? '⚖️ Court Filing' : '📰 News'}
       </div>
-      ${r.url && r.url !== '#'
-        ? `<div class="lc-link">View full ${r.type === 'court' ? 'docket' : 'article'} →</div>`
-        : `<div class="lc-link" style="opacity:0.3">No link available</div>`
+      ${hasLink
+        ? `<a class="lc-link" href="${r.url}" target="_blank" rel="noopener noreferrer">View full ${r.type === 'court' ? 'docket' : 'article'} →</a>`
+        : `<span class="lc-link" style="opacity:0.3">No link available</span>`
       }
     `;
 
@@ -609,12 +675,15 @@ document.getElementById('save-btn').addEventListener('click', async () => {
   if (!currentParsed) return;
 
   const { data: { user } } = await supabaseClient.auth.getUser();
+  // Strip the injected You node before saving
+  const saveNodes = currentParsed.nodes.filter(n => n.id !== '__you__');
+  const saveEdges = currentParsed.edges.filter(e => e.source !== '__you__' && e.target !== '__you__');
   const { error } = await supabaseClient.from('saved_trees').insert({
     user_id:   user.id,
     company:   currentParsed.company || 'Unknown',
-    nodes:     JSON.stringify(currentParsed.nodes),
-    edges:     JSON.stringify(currentParsed.edges),
-    red_flags: JSON.stringify(currentParsed.red_flags || [])
+    nodes:     JSON.stringify(saveNodes),
+    edges:     JSON.stringify(saveEdges),
+    red_flags: JSON.stringify(currentParsed.need_to_knows || currentParsed.red_flags || [])
   }, { count: 'minimal' });
 
   if (error) {
@@ -648,18 +717,24 @@ async function loadSavedTrees() {
 
     item.addEventListener('click', () => {
       const parsed = {
-        company:   tree.company,
-        nodes:     JSON.parse(tree.nodes),
-        edges:     JSON.parse(tree.edges),
-        red_flags: JSON.parse(tree.red_flags || '[]')
+        company:      tree.company,
+        nodes:        JSON.parse(tree.nodes),
+        edges:        JSON.parse(tree.edges),
+        need_to_knows: JSON.parse(tree.red_flags || '[]')
       };
       currentParsed = parsed;
       renderGraph(parsed);
-      renderRedFlags(parsed.red_flags);
+      renderNeedToKnows(parsed.need_to_knows);
       document.getElementById('save-btn').style.display = 'block';
       setStatus(`✓ Loaded: ${tree.company}`, 'success');
       if (parsed.company) fetchLawsuits(parsed.company);
     });
+
+    // Auto-open if triggered from dashboard
+    if (window._autoOpenId && tree.id === window._autoOpenId) {
+      window._autoOpenId = null;
+      item.click();
+    }
 
     list.appendChild(item);
   });
@@ -669,7 +744,7 @@ async function loadSavedTrees() {
 //  UTILITY HELPERS
 // ============================================================
 function setStatus(html, type = '') {
-  const el    = document.getElementById('status');
+  const el     = document.getElementById('status');
   el.innerHTML = html;
   el.className = type || '';
 }
