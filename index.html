@@ -11,8 +11,8 @@
 
 body {
   font-family: 'Courier Prime', monospace;
-  background: linear-gradient(180deg, #1a0f0a 0%, #3d1f12 100%);
-  color: #F4E3B0;
+  background: linear-gradient(180deg, #F3EDE9 0%, #E8DDD6 100%);
+  color: #3B2016;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -26,18 +26,18 @@ body {
   font-family: 'Playfair Display', serif;
   font-size: 52px;
   font-weight: 900;
-  color: #F4E3B0;
+  color: #3B2016;
   letter-spacing: -2px;
   line-height: 1;
 }
-.logo em { font-style: italic; color: #764C34; }
+.logo em { font-style: italic; color: #9B6B50; }
 .tagline {
   font-size: 10px;
   letter-spacing: 4px;
   text-transform: uppercase;
-  color: #B9B9B7;
+  color: #9E8880;
   margin-top: 10px;
-  opacity: 0.6;
+  opacity: 0.8;
 }
 
 .intro {
@@ -53,13 +53,13 @@ body {
   font-size: clamp(26px, 5vw, 40px);
   font-weight: 700;
   line-height: 1.25;
-  color: #F4E3B0;
+  color: #3B2016;
   margin-bottom: 14px;
 }
-.intro h1 em { font-style: italic; color: #764C34; }
+.intro h1 em { font-style: italic; color: #9B6B50; }
 .intro p {
   font-size: 14px;
-  color: #B9B9B7;
+  color: #7A5843;
   line-height: 1.8;
   letter-spacing: 0.3px;
 }
@@ -67,26 +67,26 @@ body {
 .demo {
   margin-top: 40px;
   padding: 24px;
-  border: 1px solid rgba(244,227,176,0.15);
+  border: 1px solid rgba(59, 32, 22, 0.12);
   border-radius: 12px;
   width: 88%;
   max-width: 680px;
   opacity: 0;
   animation: fadeIn 1.2s ease forwards;
   animation-delay: 0.9s;
-  background: rgba(57,35,20,0.4);
+  background: rgba(255, 255, 255, 0.5);
 }
 .demo h2 {
   font-family: 'Playfair Display', serif;
   font-size: 18px;
   font-weight: 700;
-  color: #F4E3B0;
+  color: #3B2016;
   margin-bottom: 10px;
   letter-spacing: -0.5px;
 }
 .demo p {
   font-size: 12px;
-  color: #B9B9B7;
+  color: #7A5843;
   line-height: 1.7;
   margin-bottom: 16px;
 }
@@ -95,9 +95,9 @@ body {
   margin-top: 36px;
   margin-bottom: 60px;
   padding: 16px 48px;
-  background: #764C34;
+  background: #9B6B50;
   border: none;
-  color: #F4E3B0;
+  color: #FAF7F5;
   font-size: 18px;
   font-family: 'Playfair Display', serif;
   font-weight: 700;
@@ -108,9 +108,9 @@ body {
   animation: fadeIn 1.2s ease forwards;
   animation-delay: 1.4s;
   transition: background 0.2s, transform 0.15s;
-  box-shadow: 0 8px 24px rgba(118,76,52,0.4);
+  box-shadow: 0 8px 24px rgba(155, 107, 80, 0.25);
 }
-.start-btn:hover { background: #8a5a3e; transform: translateY(-2px); }
+.start-btn:hover { background: #7A5843; transform: translateY(-2px); }
 
 @keyframes fadeIn { to { opacity: 1; } }
 </style>
@@ -130,7 +130,7 @@ body {
 <div class="demo">
   <h2>How it works</h2>
   <p>Upload a document or paste any Terms &amp; Conditions → Fineprint maps every company, data broker, and legal clause into an interactive graph, then surfaces real court cases involving that company.</p>
-
+  <p>You can also </p>
 </div>
 
 <button class="start-btn" onclick="window.location.href='login.html'">Get Started →</button>

@@ -6,33 +6,33 @@
 <title>Fineprint — Login</title>
 <link rel="icon" type="image/svg+xml" href="images/fineprint-favicon.svg">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Courier+Prime&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Space+Mono:wght@400;700&display=swap');
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  font-family: 'Courier Prime', monospace;
-  background: #25100C;
+  font-family: 'Space Mono', monospace;
+  background: #F3EDE9;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-image: radial-gradient(ellipse at 50% 50%, #392314 0%, #25100C 60%, #0a0806 100%);
+  background-image: radial-gradient(ellipse at 50% 50%, #EDE3DC 0%, #E4D5CC 60%, #D6C9C3 100%);
 }
 
 .card {
-  background: #392314;
-  border: 1px solid #764C34;
+  background: #FAF7F5;
+  border: 1px solid #C9B8AF;
   padding: 40px 36px;
   border-radius: 12px;
   width: 340px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  box-shadow: 0 20px 60px rgba(59, 32, 22, 0.12);
 }
 
 .logo {
   font-family: 'Playfair Display', serif;
   font-size: 30px;
-  color: #F4E3B0;
+  color: #3B2016;
   text-align: center;
   margin-bottom: 4px;
   letter-spacing: -1px;
@@ -41,7 +41,7 @@ body {
 .tagline {
   text-align: center;
   font-size: 11px;
-  color: #B9B9B7;
+  color: #9E8880;
   letter-spacing: 3px;
   text-transform: uppercase;
   margin-bottom: 28px;
@@ -49,7 +49,7 @@ body {
 
 .tabs {
   display: flex;
-  background: rgba(0,0,0,0.3);
+  background: rgba(59, 32, 22, 0.06);
   border-radius: 6px;
   padding: 3px;
   margin-bottom: 22px;
@@ -60,19 +60,19 @@ body {
   padding: 9px;
   border: none;
   border-radius: 4px;
-  font-family: 'Courier Prime', monospace;
+  font-family: 'Space Mono', monospace;
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
   background: transparent;
-  color: rgba(244,227,176,0.4);
+  color: rgba(59, 32, 22, 0.35);
   letter-spacing: 1px;
 }
 
 .tab.active {
-  background: #764C34;
-  color: #F4E3B0;
+  background: #9B6B50;
+  color: #FAF7F5;
 }
 
 input[type="email"],
@@ -81,23 +81,23 @@ input[type="password"] {
   padding: 12px 14px;
   margin: 6px 0;
   border-radius: 6px;
-  border: 1px solid #764C34;
+  border: 1px solid #D6C9C3;
   font-size: 14px;
-  font-family: 'Courier Prime', monospace;
-  background: rgba(0,0,0,0.4);
-  color: #F4E3B0;
+  font-family: 'Space Mono', monospace;
+  background: #FFFFFF;
+  color: #3B2016;
   transition: border 0.2s;
 }
 
-input::placeholder { color: #B9B9B7; opacity: 0.6; }
-input:focus { outline: none; border-color: #F4E3B0; }
+input::placeholder { color: #9E8880; opacity: 0.8; }
+input:focus { outline: none; border-color: #9B6B50; }
 
 .submit-btn {
   width: 100%;
   padding: 13px;
   margin-top: 14px;
-  background: #764C34;
-  color: #F4E3B0;
+  background: #9B6B50;
+  color: #FAF7F5;
   font-family: 'Playfair Display', serif;
   font-size: 16px;
   font-weight: 700;
@@ -108,7 +108,7 @@ input:focus { outline: none; border-color: #F4E3B0; }
   transition: background 0.2s;
 }
 
-.submit-btn:hover { background: #8a5a3e; }
+.submit-btn:hover { background: #7A5843; }
 .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .message {
@@ -120,8 +120,8 @@ input:focus { outline: none; border-color: #F4E3B0; }
   text-align: center;
   letter-spacing: 0.5px;
 }
-.message.error   { display: block; background: rgba(255,80,80,0.1); color: #ff6b6b; border: 1px solid rgba(255,80,80,0.2); }
-.message.success { display: block; background: rgba(107,255,184,0.1); color: #6bffb8; border: 1px solid rgba(107,255,184,0.2); }
+.message.error   { display: block; background: rgba(201, 107, 107, 0.1); color: #C96B6B; border: 1px solid rgba(201, 107, 107, 0.25); }
+.message.success { display: block; background: rgba(93, 196, 154, 0.1); color: #3D9E72; border: 1px solid rgba(93, 196, 154, 0.25); }
 
 .form-panel.hidden { display: none; }
 </style>
@@ -169,10 +169,9 @@ input:focus { outline: none; border-color: #F4E3B0; }
 
   // Already logged in? Skip to app
   client.auth.getSession().then(({ data: { session } }) => {
-
     if (session) {
       console.log("already logged in, going to index.html")
-window.location.href = "app.html";
+      window.location.href = "app.html";
     } 
   });
 

@@ -1,17 +1,39 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Courier+Prime:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Space+Mono:wght@400;700&display=swap');
 
 :root {
-  --dark: #25100C;
-  --deeper: #392314;
-  --brown: #764C34;
-  --cream: #F4E3B0;
-  --silver: #B9B9B7;
-  --black: #0a0806;
-  --red: #ff6b6b;
-  --orange: #ffa94d;
-  --blue: #74c0fc;
-  --purple: #b197fc;
-  --green: #6bffb8;
+  /* Core palette — warm linen + dusty rose + aged parchment */
+  --dark: #3B2016;
+  --light: #F7F3F0;
+  --light2: #F3EDE9;
+  --light1: #FAF7F5;
+  --light4: #EAE0DB;
+  --light5: #D6C9C3;
+  --light6: #9E8880;
+  --midcolor: #C4A898;
+  --midcolor2: #9C7B68;
+  --midcolor3: #7A5843;
+  --midcolor4: #F5E9CC;
+  --midolor5: #E2C4A8;
+  --deeper: #4E2E1A;
+  --brown: #9B6B50;
+  --cream: #F8EDD0;
+  --silver: #C8C3BF;
+  --black: #1C0F08;
+
+  /* Accent tones — readable but airy */
+  --red: #C96B6B;
+  --orange: #D4944A;
+  --blue: #7AAECC;
+  --purple: #A898D8;
+  --green: #5DC49A;
+
+  /* Surface & interaction helpers */
+  --surface-raised: #FFFFFF;
+  --border-subtle: #E2D8D2;
+  --border-mid: #C9B8AF;
+  --highlight-warm: #F5EADB;
+  --hover-fill: #EDE3DC;
+  --accent-glow: #D4A880;
 }
 
 * {
@@ -23,9 +45,9 @@
 html,
 body {
   height: 100%;
-  background: var(--black);
-  color: var(--cream);
-  font-family: 'Courier Prime', monospace;
+  background: var(--light1);
+  color: var(--dark);
+  font-family: 'Space Mono', monospace;
 }
 
 body {
@@ -37,11 +59,11 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--dark);
+  background: var(--light2);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--brown);
+  background: var(--light5);
   border-radius: 2px;
 }
 
@@ -58,15 +80,15 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 0 20px;
-  background: var(--dark);
-  border-bottom: 1px solid var(--deeper);
+  background: var(--light2);
+  border-bottom: 1px solid var(--border-subtle);
   z-index: 10;
 }
 
 .logo {
   font-family: 'Playfair Display', serif;
   font-size: 20px;
-  color: var(--cream);
+  color: var(--midcolor3);
   letter-spacing: -0.5px;
 }
 
@@ -76,7 +98,7 @@ body {
 
 .tagline {
   font-size: 10px;
-  color: var(--silver);
+  color: var(--light6);
   letter-spacing: 3px;
   text-transform: uppercase;
 }
@@ -89,29 +111,30 @@ body {
 
 #user-email {
   font-size: 11px;
-  color: var(--silver);
+  color: var(--light6);
 }
 
 .btn-sm {
   padding: 5px 12px;
-  font-family: 'Courier Prime', monospace;
+  font-family: 'Space Mono', monospace;
   font-size: 11px;
   border-radius: 4px;
-  border: 1px solid var(--brown);
+  border: 1px solid var(--border-mid);
   background: transparent;
-  color: var(--cream);
+  color: var(--dark);
   cursor: pointer;
   transition: all 0.15s;
   letter-spacing: 1px;
 }
 
 .btn-sm:hover {
-  background: var(--brown);
+  background: var(--midcolor);
+  color: var(--light1);
 }
 
 #left-panel {
-  background: var(--dark);
-  border-right: 1px solid var(--deeper);
+  background: var(--light2);
+  border-right: 1px solid var(--border-subtle);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
@@ -122,27 +145,27 @@ body {
 .panel-title {
   font-family: 'Playfair Display', serif;
   font-size: 12px;
-  color: var(--silver);
+  color: var(--midcolor3);
   letter-spacing: 2px;
   text-transform: uppercase;
   padding-bottom: 8px;
-  border-bottom: 1px solid var(--deeper);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 #drop-zone {
-  border: 1.5px dashed var(--brown);
+  border: 1.5px dashed var(--border-mid);
   border-radius: 8px;
   padding: 20px 12px;
   text-align: center;
   cursor: pointer;
   transition: all 0.2s;
-  background: rgba(118, 76, 52, 0.05);
+  background: var(--light1);
 }
 
 #drop-zone:hover,
 #drop-zone.dragover {
-  background: rgba(118, 76, 52, 0.15);
-  border-color: var(--cream);
+  background: var(--highlight-warm);
+  border-color: var(--accent-glow);
 }
 
 #drop-zone .drop-icon {
@@ -152,17 +175,18 @@ body {
 
 #drop-zone p {
   font-size: 11px;
-  color: var(--silver);
+  color: var(--midcolor3);
   line-height: 1.6;
 }
 
 #drop-zone strong {
-  color: var(--cream);
+  color: var(--dark);
 }
 
 .hint-sm {
   opacity: 0.5;
   font-size: 10px;
+  color: var(--light6);
 }
 
 #file-input {
@@ -174,7 +198,7 @@ body {
   align-items: center;
   gap: 8px;
   font-size: 10px;
-  color: var(--silver);
+  color: var(--midcolor3);
   letter-spacing: 2px;
 }
 
@@ -183,17 +207,17 @@ body {
   content: '';
   flex: 1;
   height: 1px;
-  background: var(--deeper);
+  background: var(--border-subtle);
 }
 
 #paste-area {
   width: 100%;
   min-height: 100px;
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid var(--deeper);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
   border-radius: 6px;
-  color: var(--cream);
-  font-family: 'Courier Prime', monospace;
+  color: var(--dark);
+  font-family: 'Space Mono', monospace;
   font-size: 11px;
   padding: 10px;
   resize: vertical;
@@ -202,19 +226,19 @@ body {
 
 #paste-area:focus {
   outline: none;
-  border-color: var(--brown);
+  border-color: var(--accent-glow);
 }
 
 #paste-area::placeholder {
-  color: var(--silver);
-  opacity: 0.5;
+  color: var(--light6);
+  opacity: 0.6;
 }
 
 #analyze-btn {
   width: 100%;
   padding: 11px;
-  background: var(--brown);
-  color: var(--cream);
+  background: var(--midcolor);
+  color: var(--dark);
   font-family: 'Playfair Display', serif;
   font-size: 15px;
   font-weight: 700;
@@ -226,7 +250,8 @@ body {
 }
 
 #analyze-btn:hover:not(:disabled) {
-  background: #8a5a3e;
+  background: var(--midcolor2);
+  color: var(--light1);
 }
 
 #analyze-btn:disabled {
@@ -236,7 +261,7 @@ body {
 
 #status {
   font-size: 11px;
-  color: var(--silver);
+  color: var(--light6);
   text-align: center;
   min-height: 14px;
   letter-spacing: 0.5px;
@@ -263,21 +288,41 @@ body {
 
 #red-flags-list li {
   font-size: 10px;
-  color: var(--cream);
-  background: rgba(255, 107, 107, 0.08);
+  color: var(--dark);
+  background: var(--highlight-warm);
   border-left: 2px solid var(--red);
   padding: 6px 8px;
   border-radius: 0 4px 4px 0;
   line-height: 1.5;
 }
 
+.rf-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--red);
+  font-family: 'Playfair Display', serif;
+}
+
+.rf-what,
+.rf-impact {
+  font-size: 10px;
+  color: var(--midcolor3);
+  line-height: 1.6;
+}
+
+.rf-what strong,
+.rf-impact strong {
+  color: var(--dark);
+  font-weight: 700;
+}
+
 #save-btn {
   width: 100%;
   padding: 9px;
   background: transparent;
-  border: 1px solid var(--brown);
-  color: var(--cream);
-  font-family: 'Courier Prime', monospace;
+  border: 1px solid var(--border-mid);
+  color: var(--dark);
+  font-family: 'Space Mono', monospace;
   font-size: 12px;
   border-radius: 6px;
   cursor: pointer;
@@ -287,7 +332,7 @@ body {
 }
 
 #save-btn:hover {
-  background: rgba(118, 76, 52, 0.3);
+  background: var(--hover-fill);
 }
 
 #saved-section {
@@ -301,8 +346,8 @@ body {
 }
 
 .saved-item {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--deeper);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
   border-radius: 6px;
   padding: 8px 10px;
   cursor: pointer;
@@ -310,24 +355,24 @@ body {
 }
 
 .saved-item:hover {
-  border-color: var(--brown);
-  background: rgba(118, 76, 52, 0.1);
+  border-color: var(--accent-glow);
+  background: var(--highlight-warm);
 }
 
 .saved-company {
   font-size: 12px;
-  color: var(--cream);
+  color: var(--dark);
   font-weight: 700;
 }
 
 .saved-date {
   font-size: 10px;
-  color: var(--silver);
+  color: var(--light6);
   margin-top: 2px;
 }
 
 #graph-panel {
-  background: var(--black);
+  background: var(--light);
   position: relative;
   overflow: hidden;
 }
@@ -355,8 +400,8 @@ body {
 
 #empty-state p {
   font-size: 11px;
-  color: var(--silver);
-  opacity: 0.4;
+  color: var(--midcolor3);
+  opacity: 0.5;
   letter-spacing: 3px;
   text-transform: uppercase;
 }
@@ -368,10 +413,10 @@ body {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  background: rgba(37, 16, 12, 0.9);
+  background: var(--surface-raised);
   padding: 10px 12px;
   border-radius: 6px;
-  border: 1px solid var(--deeper);
+  border: 1px solid var(--border-subtle);
   backdrop-filter: blur(4px);
 }
 
@@ -380,7 +425,7 @@ body {
   align-items: center;
   gap: 7px;
   font-size: 10px;
-  color: var(--silver);
+  color: var(--midcolor3);
 }
 
 .ld {
@@ -392,8 +437,8 @@ body {
 
 #tooltip {
   position: fixed;
-  background: var(--dark);
-  border: 1px solid var(--brown);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-mid);
   border-radius: 6px;
   padding: 8px 12px;
   font-size: 11px;
@@ -401,25 +446,25 @@ body {
   z-index: 999;
   display: none;
   max-width: 200px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 20px rgba(59, 32, 22, 0.08);
 }
 
 .tt-label {
   font-weight: 700;
-  color: var(--cream);
+  color: var(--dark);
   margin-bottom: 2px;
 }
 
 .tt-type {
-  color: var(--silver);
+  color: var(--midcolor3);
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
 #right-panel {
-  background: var(--dark);
-  border-left: 1px solid var(--deeper);
+  background: var(--light2);
+  border-left: 1px solid var(--border-subtle);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
@@ -434,15 +479,15 @@ body {
 }
 
 .lawsuit-card {
-  background: #F1EDEC;
-  border: 1px solid var(--deeper);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
   border-radius: 6px;
   padding: 10px;
   transition: border-color 0.2s;
 }
 
 .lawsuit-card:hover {
-  border-color: var(--brown);
+  border-color: var(--accent-glow);
 }
 
 .lawsuit-card.court {
@@ -455,7 +500,7 @@ body {
 
 .lc-title {
   font-size: 11px;
-  color: var(--cream);
+  color: var(--dark);
   line-height: 1.4;
   margin-bottom: 5px;
   font-weight: 700;
@@ -463,7 +508,7 @@ body {
 
 .lc-meta {
   font-size: 10px;
-  color: var(--silver);
+  color: var(--midcolor3);
   margin-bottom: 5px;
 }
 
@@ -476,13 +521,13 @@ body {
 }
 
 .lc-link:hover {
-  color: var(--cream);
+  color: var(--midcolor2);
 }
 
 #lawsuit-empty {
   font-size: 11px;
-  color: var(--silver);
-  opacity: 0.5;
+  color: var(--midcolor3);
+  opacity: 0.6;
   text-align: center;
   padding: 16px 0;
   letter-spacing: 1px;
@@ -492,8 +537,8 @@ body {
   display: inline-block;
   width: 12px;
   height: 12px;
-  border: 2px solid rgba(244, 227, 176, 0.2);
-  border-top-color: var(--cream);
+  border: 2px solid rgba(59, 32, 22, 0.1);
+  border-top-color: var(--brown);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
   vertical-align: middle;
@@ -508,11 +553,11 @@ body {
 
 @keyframes pulse-glow {
   0%, 100% {
-    filter: drop-shadow(0 0 3px #ff6b6b);
+    filter: drop-shadow(0 0 3px var(--red));
   }
 
   50% {
-    filter: drop-shadow(0 0 10px #ff6b6b);
+    filter: drop-shadow(0 0 10px var(--red));
   }
 }
 
@@ -529,7 +574,7 @@ body {
   #right-panel {
     grid-column: 1 / -1;
     border-left: none;
-    border-top: 1px solid var(--deeper);
+    border-top: 1px solid var(--border-subtle);
   }
 }
 
@@ -551,11 +596,11 @@ body {
   }
 
   #left-panel {
-    border-bottom: 1px solid var(--deeper);
+    border-bottom: 1px solid var(--border-subtle);
   }
 
   #right-panel {
-    border-top: 1px solid var(--deeper);
+    border-top: 1px solid var(--border-subtle);
   }
 
   .tagline,
@@ -566,4 +611,86 @@ body {
   #graph-panel {
     min-height: 340px;
   }
+}
+
+/* Red Flag enhanced styles */
+#red-flags-list li {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 10px 10px;
+}
+
+.rf-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--red);
+  font-family: 'Playfair Display', serif;
+}
+
+.rf-what,
+.rf-impact {
+  font-size: 10px;
+  color: var(--midcolor3);
+  line-height: 1.6;
+}
+
+.rf-what strong,
+.rf-impact strong {
+  color: var(--dark);
+  font-weight: 700;
+}
+
+/* Rich Tooltip */
+#tooltip {
+  max-width: 260px;
+  padding: 12px 14px;
+  gap: 0;
+}
+
+.tt-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 3px 8px;
+  border-radius: 20px;
+  margin-bottom: 8px;
+  font-family: 'Space Mono', monospace;
+}
+
+#tooltip .tt-label {
+  font-family: 'Playfair Display', serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+
+.tt-desc {
+  font-size: 11px;
+  color: var(--midcolor3);
+  line-height: 1.65;
+  font-family: 'Space Mono', monospace;
+}
+
+.tt-desc strong {
+  color: var(--dark);
+}
+
+.tt-redflag {
+  margin-top: 8px;
+  font-size: 10px;
+  color: var(--red);
+  font-family: 'Space Mono', monospace;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.lawsuit-card[style*="cursor: pointer"]:hover {
+  border-color: var(--accent-glow);
+  background: var(--highlight-warm);
+  transform: translateY(-1px);
+  transition: all 0.15s;
 }
