@@ -694,3 +694,58 @@ body {
   transform: translateY(-1px);
   transition: all 0.15s;
 }
+
+/* ── Clickable lawsuit cards ── */
+.lawsuit-card[style*="cursor: pointer"]:hover {
+  border-color: var(--brown);
+  background: rgba(118, 76, 52, 0.08);
+  transform: translateY(-1px);
+  transition: all 0.15s;
+}
+
+/* ── Need to Knows ── */
+.ntk-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.ntk-number {
+  font-size: 10px;
+  color: var(--silver);
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.ntk-severity {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  font-family: 'Courier Prime', monospace;
+}
+
+/* ── Lawsuit description ── */
+.lc-description {
+  font-size: 11px;
+  color: var(--silver);
+  line-height: 1.5;
+  margin-bottom: 5px;
+  font-style: italic;
+}
+
+/* ── Clickable lawsuit cards ── */
+.lawsuit-card {
+  cursor: default;
+  transition: all 0.15s;
+}
+
+.lawsuit-card:has(.lc-link[href]) {
+  cursor: pointer;
+}
+
+.lawsuit-card:has(.lc-link[href]):hover {
+  border-color: var(--brown);
+  background: rgba(118, 76, 52, 0.08);
+  transform: translateY(-1px);
+}

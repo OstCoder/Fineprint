@@ -1,12 +1,9 @@
-
-
 const GROQ_KEY    = window.FINEPRINT_CONFIG.GROQ_KEY;
 const COURT_TOKEN = window.FINEPRINT_CONFIG.COURT_TOKEN;
 const NEWS_KEY    = window.FINEPRINT_CONFIG.NEWS_KEY;
 const GROQ_MODEL  = window.FINEPRINT_CONFIG.GROQ_MODEL;
 
 
-// ── Instructions we send to the AI ──────────────────────────
 const GROQ_SYSTEM = `You are a legal analysis tool helping everyday people understand Terms & Conditions and Privacy Policies.
 Extract all relationships and identify red flags. Return ONLY valid JSON with no explanation, no markdown, no backticks.
 
@@ -612,7 +609,7 @@ document.getElementById('save-btn').addEventListener('click', async () => {
     nodes:     JSON.stringify(currentParsed.nodes),
     edges:     JSON.stringify(currentParsed.edges),
     red_flags: JSON.stringify(currentParsed.red_flags || [])
-  });
+  }, { count: 'minimal' });
 
   if (error) {
     setStatus('Save failed: ' + error.message, 'error');
